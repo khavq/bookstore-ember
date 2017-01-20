@@ -254,8 +254,8 @@ define('bookstore/router', ['exports', 'ember', 'bookstore/config/environment'],
   });
 
   Router.map(function () {
-    this.route('book');
-    this.route('author');
+    this.route('book', { path: '/' });
+    this.route('author', { path: '/author/:author_id' });
     this.route('publishing-houses');
   });
 
@@ -269,6 +269,13 @@ define('bookstore/routes/book', ['exports', 'ember'], function (exports, _ember)
 });
 define('bookstore/routes/publishing-houses', ['exports', 'ember'], function (exports, _ember) {
   exports['default'] = _ember['default'].Route.extend({});
+});
+define('bookstore/serializers/application', ['exports', 'ember-data'], function (exports, _emberData) {
+	exports['default'] = _emberData['default'].JSONAPISerializer.extend({
+		payloadKeyFromModelName: function payloadKeyFromModelName(modelName) {
+			return singularize(capitalize(modelName));
+		}
+	});
 });
 define('bookstore/services/ajax', ['exports', 'ember-ajax/services/ajax'], function (exports, _emberAjaxServicesAjax) {
   Object.defineProperty(exports, 'default', {
@@ -323,7 +330,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("bookstore/app")["default"].create({"name":"bookstore","version":"0.0.0+2a006ce9"});
+  require("bookstore/app")["default"].create({"name":"bookstore","version":"0.0.0+9d1ff680"});
 }
 
 /* jshint ignore:end */
