@@ -7,4 +7,6 @@ export default JSONAPIAdapter.extend({
 	pathForType(type) {
 		return pluralize(underscore(type));
 	}
+
+
 });

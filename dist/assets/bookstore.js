@@ -14,6 +14,27 @@ define('bookstore/adapters/application', ['exports', 'ember', 'ember-data/adapte
 		pathForType: function pathForType(type) {
 			return pluralize(underscore(type));
 		}
+
+	});
+});
+define("bookstore/adapters/author", ["exports", "bookstore/adapters/application"], function (exports, _bookstoreAdaptersApplication) {
+	exports["default"] = _bookstoreAdaptersApplication["default"].extend({
+		shouldReloadRecord: function shouldReloadRecord() {
+			console.log("shouldReloadRecord");
+			return false;
+		},
+
+		shouldBackgroundReloadRecord: function shouldBackgroundReloadRecord(store, snapshot) {
+			console.log("shouldBackgroundReloadRecord");
+			var loadedAt = snapshot.record.get('loadedAt');
+
+			// if it was loaded more than an hour ago
+			if (Date.now() - loadedAt > 360000) {
+				return true;
+			} else {
+				return false;
+			}
+		}
 	});
 });
 define('bookstore/app', ['exports', 'ember', 'bookstore/resolver', 'ember-load-initializers', 'bookstore/config/environment'], function (exports, _ember, _bookstoreResolver, _emberLoadInitializers, _bookstoreConfigEnvironment) {
@@ -32,6 +53,80 @@ define('bookstore/app', ['exports', 'ember', 'bookstore/resolver', 'ember-load-i
 
   exports['default'] = App;
 });
+define('bookstore/components/book-cover', ['exports', 'ember'], function (exports, _ember) {
+	exports['default'] = _ember['default'].Component.extend({
+		actions: {
+			open: function open() {
+				var _this = this;
+
+				this.get('book').reload().then(function () {
+					_this.set('isShowingModal', true);
+					_this.get('blurBackground')(true);
+				});
+			},
+
+			close: function close() {
+				this.set('isShowingModal', false);
+				this.get('blurBackground')(false);
+			}
+		}
+	});
+});
+define('bookstore/components/ember-modal-dialog-positioned-container', ['exports', 'ember-modal-dialog/components/positioned-container'], function (exports, _emberModalDialogComponentsPositionedContainer) {
+  Object.defineProperty(exports, 'default', {
+    enumerable: true,
+    get: function get() {
+      return _emberModalDialogComponentsPositionedContainer['default'];
+    }
+  });
+});
+define('bookstore/components/ember-wormhole', ['exports', 'ember-wormhole/components/ember-wormhole'], function (exports, _emberWormholeComponentsEmberWormhole) {
+  Object.defineProperty(exports, 'default', {
+    enumerable: true,
+    get: function get() {
+      return _emberWormholeComponentsEmberWormhole['default'];
+    }
+  });
+});
+define('bookstore/components/modal-dialog-overlay', ['exports', 'ember-modal-dialog/components/modal-dialog-overlay'], function (exports, _emberModalDialogComponentsModalDialogOverlay) {
+  Object.defineProperty(exports, 'default', {
+    enumerable: true,
+    get: function get() {
+      return _emberModalDialogComponentsModalDialogOverlay['default'];
+    }
+  });
+});
+define('bookstore/components/modal-dialog', ['exports', 'ember-modal-dialog/components/modal-dialog'], function (exports, _emberModalDialogComponentsModalDialog) {
+  Object.defineProperty(exports, 'default', {
+    enumerable: true,
+    get: function get() {
+      return _emberModalDialogComponentsModalDialog['default'];
+    }
+  });
+});
+define('bookstore/components/tether-dialog', ['exports', 'ember-modal-dialog/components/tether-dialog'], function (exports, _emberModalDialogComponentsTetherDialog) {
+  Object.defineProperty(exports, 'default', {
+    enumerable: true,
+    get: function get() {
+      return _emberModalDialogComponentsTetherDialog['default'];
+    }
+  });
+});
+define('bookstore/controllers/books', ['exports', 'ember'], function (exports, _ember) {
+	var computed = _ember['default'].computed;
+	exports['default'] = _ember['default'].Controller.extend({
+		queryParams: ['limit'],
+		limit: 5,
+
+		total: computed('model.meta', function () {
+			return this.get('model.meta').total;
+		}),
+
+		showAll: computed('total', 'model', function () {
+			return this.get('total') > this.get('model.length');
+		})
+	});
+});
 define('bookstore/helpers/app-version', ['exports', 'ember', 'bookstore/config/environment'], function (exports, _ember, _bookstoreConfigEnvironment) {
   exports.appVersion = appVersion;
   var version = _bookstoreConfigEnvironment['default'].APP.version;
@@ -45,8 +140,22 @@ define('bookstore/helpers/app-version', ['exports', 'ember', 'bookstore/config/e
 define('bookstore/helpers/pluralize', ['exports', 'ember-inflector/lib/helpers/pluralize'], function (exports, _emberInflectorLibHelpersPluralize) {
   exports['default'] = _emberInflectorLibHelpersPluralize['default'];
 });
+define('bookstore/helpers/route-action', ['exports', 'ember-route-action-helper/helpers/route-action'], function (exports, _emberRouteActionHelperHelpersRouteAction) {
+  Object.defineProperty(exports, 'default', {
+    enumerable: true,
+    get: function get() {
+      return _emberRouteActionHelperHelpersRouteAction['default'];
+    }
+  });
+});
 define('bookstore/helpers/singularize', ['exports', 'ember-inflector/lib/helpers/singularize'], function (exports, _emberInflectorLibHelpersSingularize) {
   exports['default'] = _emberInflectorLibHelpersSingularize['default'];
+});
+define('bookstore/initializers/add-modals-container', ['exports', 'ember-modal-dialog/initializers/add-modals-container'], function (exports, _emberModalDialogInitializersAddModalsContainer) {
+  exports['default'] = {
+    name: 'add-modals-container',
+    initialize: _emberModalDialogInitializersAddModalsContainer['default']
+  };
 });
 define('bookstore/initializers/app-version', ['exports', 'ember-cli-app-version/initializer-factory', 'bookstore/config/environment'], function (exports, _emberCliAppVersionInitializerFactory, _bookstoreConfigEnvironment) {
   var _config$APP = _bookstoreConfigEnvironment['default'].APP;
@@ -220,9 +329,13 @@ define("bookstore/instance-initializers/ember-data", ["exports", "ember-data/-pr
     initialize: _emberDataPrivateInstanceInitializersInitializeStoreService["default"]
   };
 });
-define('bookstore/models/author', ['exports', 'ember-data', 'bookstore/models/publisher'], function (exports, _emberData, _bookstoreModelsPublisher) {
+define('bookstore/models/author', ['exports', 'ember-data', 'bookstore/models/publisher', 'ember-data/relationships'], function (exports, _emberData, _bookstoreModelsPublisher, _emberDataRelationships) {
 	exports['default'] = _bookstoreModelsPublisher['default'].extend({
-		books: _emberData['default'].hasMany('books')
+		books: _emberData['default'].hasMany('books', { async: true }),
+
+		loadedAt: Ember.on('didLoad', function () {
+			this.set('loadedAt', new Date());
+		})
 	});
 });
 define('bookstore/models/book', ['exports', 'ember-data'], function (exports, _emberData) {
@@ -261,11 +374,42 @@ define('bookstore/router', ['exports', 'ember', 'bookstore/config/environment'],
 
   exports['default'] = Router;
 });
+define('bookstore/routes/application', ['exports', 'ember'], function (exports, _ember) {
+	exports['default'] = _ember['default'].Route.extend({
+		actions: {
+			blurBackground: function blurBackground(blur) {
+				this.controllerFor('application').set('blur', blur);
+			}
+		}
+	});
+});
 define('bookstore/routes/author', ['exports', 'ember'], function (exports, _ember) {
-  exports['default'] = _ember['default'].Route.extend({});
+	exports['default'] = _ember['default'].Route.extend({
+		model: function model(params) {
+			return this.store.findRecord('author', params.author_id);
+		}
+	});
 });
 define('bookstore/routes/book', ['exports', 'ember'], function (exports, _ember) {
-  exports['default'] = _ember['default'].Route.extend({});
+	exports['default'] = _ember['default'].Route.extend({
+		queryParams: {
+			limit: {
+				refreshModel: true
+			}
+		},
+
+		model: function model(params) {
+			console.log(params);
+			return this.store.query('book', { limit: 5 });
+		},
+
+		actions: {
+			showAll: function showAll() {
+				var total = this.controllerFor('books').get('total');
+				this.transitionTo({ queryParams: { limit: total } });
+			}
+		}
+	});
 });
 define('bookstore/routes/publishing-houses', ['exports', 'ember'], function (exports, _ember) {
   exports['default'] = _ember['default'].Route.extend({});
@@ -285,11 +429,49 @@ define('bookstore/services/ajax', ['exports', 'ember-ajax/services/ajax'], funct
     }
   });
 });
+define('bookstore/services/modal-dialog', ['exports', 'ember', 'ember-modal-dialog/services/modal-dialog', 'bookstore/config/environment'], function (exports, _ember, _emberModalDialogServicesModalDialog, _bookstoreConfigEnvironment) {
+  var computed = _ember['default'].computed;
+  exports['default'] = _emberModalDialogServicesModalDialog['default'].extend({
+    destinationElementId: computed(function () {
+      /*
+        everywhere except test, this property will be overwritten
+        by the initializer that appends the modal container div
+        to the DOM. because initializers don't run in unit/integration
+        tests, this is a nice fallback.
+      */
+      if (_bookstoreConfigEnvironment['default'].environment === 'test') {
+        return 'ember-testing';
+      }
+    })
+  });
+});
+define("bookstore/templates/application", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template({ "id": "o4SQ2m9I", "block": "{\"statements\":[[\"open-element\",\"div\",[]],[\"dynamic-attr\",\"class\",[\"concat\",[[\"helper\",[\"if\"],[[\"get\",[\"blur\"]],\"blur-background\",\"\"],null]]]],[\"flush-element\"],[\"text\",\"\\n\\t\"],[\"append\",[\"unknown\",[\"outlet\"]],false],[\"text\",\"\\n\"],[\"close-element\"]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[],\"hasPartials\":false}", "meta": { "moduleName": "bookstore/templates/application.hbs" } });
+});
 define("bookstore/templates/author", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template({ "id": "xsEXuSMr", "block": "{\"statements\":[[\"append\",[\"unknown\",[\"outlet\"]],false],[\"text\",\"\\n\"]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[],\"hasPartials\":false}", "meta": { "moduleName": "bookstore/templates/author.hbs" } });
+  exports["default"] = Ember.HTMLBars.template({ "id": "9QhVHAF8", "block": "{\"statements\":[[\"open-element\",\"h3\",[]],[\"flush-element\"],[\"append\",[\"unknown\",[\"model\",\"name\"]],false],[\"close-element\"],[\"text\",\"\\n\\n\"],[\"open-element\",\"strong\",[]],[\"flush-element\"],[\"text\",\"Biography\"],[\"close-element\"],[\"text\",\": Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\\n\\n\"],[\"open-element\",\"h4\",[]],[\"flush-element\"],[\"text\",\"Published titles:\"],[\"close-element\"],[\"text\",\"\\n\"],[\"open-element\",\"ul\",[]],[\"flush-element\"],[\"text\",\"\\n\"],[\"block\",[\"each\"],[[\"get\",[\"model\",\"books\"]]],null,0],[\"close-element\"]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[{\"statements\":[[\"text\",\"  \"],[\"append\",[\"helper\",[\"book-cover\"],null,[[\"book\",\"blurBackground\"],[[\"get\",[\"book\"]],[\"helper\",[\"route-action\"],[\"blurBackground\"],null]]]],false],[\"text\",\"\\n\"]],\"locals\":[\"book\"]}],\"hasPartials\":false}", "meta": { "moduleName": "bookstore/templates/author.hbs" } });
 });
 define("bookstore/templates/book", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template({ "id": "5Of2VOYr", "block": "{\"statements\":[[\"append\",[\"unknown\",[\"outlet\"]],false],[\"text\",\"\\n\"]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[],\"hasPartials\":false}", "meta": { "moduleName": "bookstore/templates/book.hbs" } });
+  exports["default"] = Ember.HTMLBars.template({ "id": "G+alZu3l", "block": "{\"statements\":[[\"block\",[\"if\"],[[\"get\",[\"showAll\"]]],null,1],[\"open-element\",\"ul\",[]],[\"flush-element\"],[\"text\",\"\\n\"],[\"block\",[\"each\"],[[\"get\",[\"model\"]]],null,0],[\"close-element\"],[\"text\",\"\\n\\n\"]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[{\"statements\":[[\"text\",\"    \"],[\"append\",[\"helper\",[\"book-cover\"],null,[[\"book\",\"blurBackground\"],[[\"get\",[\"book\"]],[\"helper\",[\"route-action\"],[\"blurBackground\"],null]]]],false],[\"text\",\"\\n\"]],\"locals\":[\"book\"]},{\"statements\":[[\"text\",\"  \"],[\"open-element\",\"button\",[]],[\"modifier\",[\"action\"],[[\"get\",[null]],\"showAll\"]],[\"flush-element\"],[\"text\",\"Show All\"],[\"close-element\"],[\"text\",\"\\n\"]],\"locals\":[]}],\"hasPartials\":false}", "meta": { "moduleName": "bookstore/templates/book.hbs" } });
+});
+define("bookstore/templates/components/book-cover", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template({ "id": "90CvRjcp", "block": "{\"statements\":[[\"open-element\",\"li\",[]],[\"modifier\",[\"action\"],[[\"get\",[null]],\"open\"]],[\"flush-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"strong\",[]],[\"flush-element\"],[\"append\",[\"unknown\",[\"book\",\"title\"]],false],[\"close-element\"],[\"open-element\",\"br\",[]],[\"flush-element\"],[\"close-element\"],[\"open-element\",\"br\",[]],[\"flush-element\"],[\"close-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"em\",[]],[\"flush-element\"],[\"text\",\"by\"],[\"close-element\"],[\"text\",\"\\n  \"],[\"block\",[\"link-to\"],[\"author\",[\"get\",[\"book\",\"author\",\"id\"]]],[[\"class\"],[\"author\"]],2],[\"text\",\"\\n\"],[\"close-element\"],[\"text\",\"\\n\\n\"],[\"block\",[\"if\"],[[\"get\",[\"isShowingModal\"]]],null,1]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[{\"statements\":[[\"text\",\"\\t\\t\"],[\"open-element\",\"div\",[]],[\"static-attr\",\"class\",\"modal\"],[\"flush-element\"],[\"text\",\"\\n\\t\\t\\t\"],[\"open-element\",\"h3\",[]],[\"flush-element\"],[\"text\",\"Pucharse is confirm\"],[\"close-element\"],[\"text\",\"\\n\\t\\t\\tYou want to by \"],[\"open-element\",\"strong\",[]],[\"flush-element\"],[\"append\",[\"unknown\",[\"book\",\"title\"]],false],[\"close-element\"],[\"text\",\" by \"],[\"append\",[\"unknown\",[\"book\",\"author\",\"name\"]],false],[\"text\",\".\\n\\n\\t\\t\\t\"],[\"open-element\",\"p\",[]],[\"flush-element\"],[\"open-element\",\"button\",[]],[\"modifier\",[\"action\"],[[\"get\",[null]],\"close\"]],[\"flush-element\"],[\"text\",\"Purchase for $\"],[\"append\",[\"unknown\",[\"book\",\"price\"]],false],[\"text\",\"!\"],[\"close-element\"],[\"close-element\"],[\"text\",\"\\n\\t\\t\\t\"],[\"open-element\",\"p\",[]],[\"flush-element\"],[\"open-element\",\"em\",[]],[\"flush-element\"],[\"text\",\"Thank you! We will email you your ebook\"],[\"close-element\"],[\"close-element\"],[\"text\",\"\\n\\t\\t\"],[\"close-element\"],[\"text\",\"\\n\"]],\"locals\":[]},{\"statements\":[[\"block\",[\"modal-dialog\"],null,[[\"close\",\"clickOutsideToClose\"],[\"close\",true]],0]],\"locals\":[]},{\"statements\":[[\"append\",[\"unknown\",[\"book\",\"author\",\"name\"]],false]],\"locals\":[]}],\"hasPartials\":false}", "meta": { "moduleName": "bookstore/templates/components/book-cover.hbs" } });
+});
+define('bookstore/templates/components/modal-dialog', ['exports', 'ember-modal-dialog/templates/components/modal-dialog'], function (exports, _emberModalDialogTemplatesComponentsModalDialog) {
+  Object.defineProperty(exports, 'default', {
+    enumerable: true,
+    get: function get() {
+      return _emberModalDialogTemplatesComponentsModalDialog['default'];
+    }
+  });
+});
+define('bookstore/templates/components/tether-dialog', ['exports', 'ember-modal-dialog/templates/components/tether-dialog'], function (exports, _emberModalDialogTemplatesComponentsTetherDialog) {
+  Object.defineProperty(exports, 'default', {
+    enumerable: true,
+    get: function get() {
+      return _emberModalDialogTemplatesComponentsTetherDialog['default'];
+    }
+  });
 });
 define("bookstore/templates/publishing-houses", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template({ "id": "pUHHrBPa", "block": "{\"statements\":[[\"append\",[\"unknown\",[\"outlet\"]],false],[\"text\",\"\\n\"]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[],\"hasPartials\":false}", "meta": { "moduleName": "bookstore/templates/publishing-houses.hbs" } });
@@ -330,7 +512,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("bookstore/app")["default"].create({"name":"bookstore","version":"0.0.0+9d1ff680"});
+  require("bookstore/app")["default"].create({"name":"bookstore","version":"0.0.0+d7528d35"});
 }
 
 /* jshint ignore:end */

@@ -1,0 +1,17 @@
+<li {{action "open"}}>
+  <strong>{{book.title}}</strong><br><br>
+  <em>by</em>
+  {{link-to book.author.name 'author' book.author.id class="author" }}
+</li>
+
+{{#if isShowingModal}}
+	{{#modal-dialog close="close" clickOutsideToClose=true}}
+		<div class="modal">
+			<h3>Pucharse is confirm</h3>
+			You want to by <strong>{{book.title}}</strong> by {{book.author.name}}.
+
+			<p><button {{action "close"}}>Purchase for ${{book.price}}!</button></p>
+			<p><em>Thank you! We will email you your ebook</em></p>
+		</div>
+	{{/modal-dialog}}
+{{/if}}

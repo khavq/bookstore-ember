@@ -91367,6 +91367,16 @@ define("ember-data/version", ["exports"], function (exports) {
 
   exports["default"] = "2.11.0";
 });
+define("ember-getowner-polyfill/index", ["exports", "ember"], function (exports, _ember) {
+  "use strict";
+
+  _ember["default"].deprecate("ember-getowner-polyfill is now a true polyfill. Use Ember.getOwner directly instead of importing from ember-getowner-polyfill", false, {
+    id: "ember-getowner-polyfill.import",
+    until: '2.0.0'
+  });
+
+  exports["default"] = _ember["default"].getOwner;
+});
 define("ember-inflector/index", ["exports", "ember", "ember-inflector/lib/system", "ember-inflector/lib/ext/string"], function (exports, _ember, _emberInflectorLibSystem, _emberInflectorLibExtString) {
   /* global define, module */
 
@@ -91870,6 +91880,320 @@ define('ember-load-initializers/index', ['exports', 'ember'], function (exports,
       }
     });
   };
+});
+define('ember-modal-dialog/components/modal-dialog-overlay', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  exports['default'] = _ember['default'].Component.extend({
+    attributeBindings: ['data-ember-modal-dialog-overlay'],
+    'data-ember-modal-dialog-overlay': true,
+
+    // trigger only when clicking the overlay itself, not its children
+    click: function click(event) {
+      if (event.target === this.get('element')) {
+        this.sendAction();
+      }
+    }
+  });
+});
+define('ember-modal-dialog/components/modal-dialog', ['exports', 'ember', 'ember-modal-dialog/templates/components/modal-dialog'], function (exports, _ember, _emberModalDialogTemplatesComponentsModalDialog) {
+  'use strict';
+
+  var dasherize = _ember['default'].String.dasherize;
+  var $ = _ember['default'].$;
+  var computed = _ember['default'].computed;
+  var inject = _ember['default'].inject;
+  var oneWay = computed.oneWay;
+
+  var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  var computedJoin = function computedJoin(prop) {
+    return computed(prop, function () {
+      return this.get(prop).join(' ');
+    });
+  };
+
+  exports['default'] = _ember['default'].Component.extend({
+    tagName: '',
+    layout: _emberModalDialogTemplatesComponentsModalDialog['default'],
+    modalService: inject.service('modal-dialog'),
+    destinationElementId: oneWay('modalService.destinationElementId'),
+
+    // container-class - set this from templates
+    containerClassNames: ['ember-modal-dialog'], // set this in a subclass definition
+    containerClassNamesString: computedJoin('containerClassNames'),
+
+    // 'overlay-class - set this from templates
+    overlayClassNames: ['ember-modal-overlay'], // set this in a subclass definition
+    overlayClassNamesString: computedJoin('overlayClassNames'),
+
+    // 'wrapper-class - set this from templates
+    wrapperClassNames: ['ember-modal-wrapper'], // set this in a subclass definition
+    wrapperClassNamesString: computedJoin('wrapperClassNames'),
+
+    concatenatedProperties: ['containerClassNames', 'overlayClassNames', 'wrapperClassNames'],
+
+    targetAttachmentClass: computed('targetAttachment', function () {
+      var targetAttachment = this.get('targetAttachment') || '';
+      // Convert tether-styled values like 'middle right' to 'right'
+      targetAttachment = targetAttachment.split(' ').slice(-1)[0];
+      return 'ember-modal-dialog-target-attachment-' + dasherize(targetAttachment);
+    }),
+
+    target: 'body', // element, css selector, or view instance
+    targetAttachment: 'middle center',
+
+    translucentOverlay: false,
+    clickOutsideToClose: false,
+    renderInPlace: false,
+
+    makeOverlayClickableOnIOS: _ember['default'].on('didInsertElement', function () {
+      if (isIOS) {
+        _ember['default'].$('div[data-ember-modal-dialog-overlay]').css('cursor', 'pointer');
+      }
+    }),
+
+    didInsertElement: function didInsertElement() {
+      var _this = this;
+
+      if (!this.get('clickOutsideToClose')) {
+        return;
+      }
+
+      var handleClick = function handleClick(event) {
+        if (!$(event.target).closest('.ember-modal-dialog').length) {
+          _this.send('close');
+        }
+      };
+      var registerClick = function registerClick() {
+        return $(document).on('click.ember-modal-dialog', handleClick);
+      };
+
+      // setTimeout needed or else the click handler will catch the click that spawned this modal dialog
+      setTimeout(registerClick);
+      this._super.apply(this, arguments);
+    },
+    willDestroyElement: function willDestroyElement() {
+      $(document).off('click.ember-modal-dialog');
+      this._super.apply(this, arguments);
+    },
+
+    actions: {
+      close: function close() {
+        this.sendAction('close');
+      }
+    }
+  });
+});
+define('ember-modal-dialog/components/positioned-container', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+  var observer = _ember['default'].observer;
+  var on = _ember['default'].on;
+  var capitalize = _ember['default'].String.capitalize;
+
+  var SUPPORTED_TARGET_ATTACHMENTS = ['top', 'right', 'bottom', 'left', 'center', 'none'];
+
+  exports['default'] = _ember['default'].Component.extend({
+
+    // target - element selector, element, or Ember View
+    // targetAttachment - top, right, bottom, left, center, or none
+    //   left, right, top, bottom (relative to target)
+    //   center (relative to container)
+    targetAttachment: 'center',
+
+    isPositioned: computed('targetAttachment', 'target', 'renderInPlace', function () {
+      if (this.get('renderInPlace')) {
+        return false;
+      }
+      if (this.get('target') && this.get('targetAttachment')) {
+        return true;
+      }
+      var targetAttachment = this.get('targetAttachment');
+      return targetAttachment === 'center' || targetAttachment === 'middle center';
+    }),
+
+    didGetPositioned: observer('isPositioned', on('didInsertElement', function () {
+      if (this._state !== 'inDOM') {
+        return;
+      }
+
+      if (this.get('isPositioned')) {
+        this.updateTargetAttachment();
+      } else {
+        this.$().css('left', '').css('top', '');
+      }
+    })),
+
+    getWrappedTargetAttachmentElement: function getWrappedTargetAttachmentElement() {
+      var target = this.get('target');
+      if (!target) {
+        return null;
+      }
+
+      if (_ember['default'].typeOf(target) === 'string') {
+        var targetSelector = target;
+        var wrappedElement = _ember['default'].$(targetSelector).eq(0);
+        _ember['default'].assert('No element found for modal-dialog\'s target selector \'' + targetSelector + '\'.', wrappedElement);
+        return wrappedElement;
+      }
+
+      // passed an ember view or component
+      if (target.element) {
+        return _ember['default'].$(target.element);
+      }
+
+      // passed an element directly
+      return _ember['default'].$(target);
+    },
+
+    updateTargetAttachment: function updateTargetAttachment() {
+      var targetAttachment = this.get('targetAttachment');
+      // Convert tether-styled values like 'middle right' to 'right'
+      targetAttachment = targetAttachment.split(' ').slice(-1)[0];
+      _ember['default'].assert('Positioned container supports targetAttachments of ' + SUPPORTED_TARGET_ATTACHMENTS.join(', '), SUPPORTED_TARGET_ATTACHMENTS.indexOf(targetAttachment) > -1);
+      var targetAttachmentMethod = 'align' + capitalize(targetAttachment);
+      var targetAttachmentElement = this.getWrappedTargetAttachmentElement();
+
+      this[targetAttachmentMethod](targetAttachmentElement);
+    },
+
+    alignCenter: function alignCenter() {
+      var elementWidth = this.$().outerWidth();
+      var elementHeight = this.$().outerHeight();
+
+      this.$().css('left', '50%').css('top', '50%').css('margin-left', elementWidth * -0.5).css('margin-top', elementHeight * -0.5);
+    },
+
+    alignLeft: function alignLeft(targetAttachmentElement) {
+      _ember['default'].assert('Left targetAttachment requires a target', targetAttachmentElement.length > 0);
+
+      var elementWidth = this.$().outerWidth();
+      var originOffset = targetAttachmentElement.offset();
+      var originOffsetTop = originOffset.top - _ember['default'].$(window).scrollTop();
+
+      this.$().css('left', originOffset.left - elementWidth).css('top', originOffsetTop);
+    },
+
+    alignRight: function alignRight(targetAttachmentElement) {
+      _ember['default'].assert('Right targetAttachment requires a target', targetAttachmentElement.length > 0);
+
+      var targetWidth = targetAttachmentElement.outerWidth();
+      var originOffset = targetAttachmentElement.offset();
+      var originOffsetTop = originOffset.top - _ember['default'].$(window).scrollTop();
+
+      this.$().css('left', originOffset.left + targetWidth).css('top', originOffsetTop);
+    },
+
+    alignTop: function alignTop(targetAttachmentElement) {
+      _ember['default'].assert('Top targetAttachment requires a target', targetAttachmentElement.length > 0);
+
+      var elementWidth = this.$().outerWidth();
+      var elementHeight = this.$().outerHeight();
+      var originOffset = targetAttachmentElement.offset();
+      var originOffsetTop = originOffset.top - _ember['default'].$(window).scrollTop();
+      var targetWidth = targetAttachmentElement.outerWidth();
+
+      this.$().css('left', originOffset.left + targetWidth / 2 - elementWidth / 2).css('top', originOffsetTop - elementHeight);
+    },
+
+    alignBottom: function alignBottom(targetAttachmentElement) {
+      _ember['default'].assert('Bottom targetAttachment requires a target', targetAttachmentElement.length > 0);
+
+      var elementWidth = this.$().outerWidth();
+      var originOffset = targetAttachmentElement.offset();
+      var originOffsetTop = originOffset.top - _ember['default'].$(window).scrollTop();
+      var targetWidth = targetAttachmentElement.outerWidth();
+      var targetHeight = targetAttachmentElement.outerHeight();
+
+      this.$().css('left', originOffset.left + targetWidth / 2 - elementWidth / 2).css('top', originOffsetTop + targetHeight);
+    },
+
+    alignNone: function alignNone() {}
+  });
+});
+define('ember-modal-dialog/components/tether-dialog', ['exports', 'ember', 'ember-modal-dialog/components/modal-dialog', 'ember-modal-dialog/templates/components/tether-dialog'], function (exports, _ember, _emberModalDialogComponentsModalDialog, _emberModalDialogTemplatesComponentsTetherDialog) {
+  'use strict';
+
+  var dasherize = _ember['default'].String.dasherize;
+  var computed = _ember['default'].computed;
+  var get = _ember['default'].get;
+
+  var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+  exports['default'] = _emberModalDialogComponentsModalDialog['default'].extend({
+    layout: _emberModalDialogTemplatesComponentsTetherDialog['default'],
+
+    targetAttachmentClass: computed('targetAttachment', function () {
+      var targetAttachment = this.get('targetAttachment') || '';
+      return 'ember-modal-dialog-target-attachment-' + dasherize(targetAttachment);
+    }),
+
+    targetAttachment: 'middle center',
+    attachment: 'middle center',
+    hasOverlay: true,
+    target: 'viewport', // element, css selector, view instance, 'viewport', or 'scroll-handle'
+
+    tetherClassPrefix: 'ember-tether',
+    // offset - passed in
+    // targetOffset - passed in
+    // targetModifier - passed in
+
+    makeOverlayClickableOnIOS: _ember['default'].on('didInsertElement', function () {
+      if (isIOS && get(this, 'hasOverlay')) {
+        _ember['default'].$('div[data-ember-modal-dialog-overlay]').css('cursor', 'pointer');
+      }
+    })
+
+  });
+});
+define('ember-modal-dialog/initializers/add-modals-container', ['exports'], function (exports) {
+  /*globals document */
+  'use strict';
+
+  var hasDOM = typeof document !== 'undefined';
+
+  function appendContainerElement(rootElementId, id) {
+    if (!hasDOM) {
+      return;
+    }
+
+    if (document.getElementById(id)) {
+      return;
+    }
+
+    var rootEl = document.querySelector(rootElementId);
+    var modalContainerEl = document.createElement('div');
+    modalContainerEl.id = id;
+    rootEl.appendChild(modalContainerEl);
+  }
+
+  exports['default'] = function () {
+    var application = arguments[1] || arguments[0];
+    var emberModalDialog = application.emberModalDialog || {};
+    var modalContainerElId = emberModalDialog.modalRootElementId || 'modal-overlays';
+
+    application.register('config:modals-container-id', modalContainerElId, { instantiate: false });
+
+    application.inject('service:modal-dialog', 'destinationElementId', 'config:modals-container-id');
+
+    appendContainerElement(application.rootElement, modalContainerElId);
+  };
+});
+define('ember-modal-dialog/services/modal-dialog', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  exports['default'] = _ember['default'].Service.extend();
+});
+define("ember-modal-dialog/templates/components/modal-dialog", ["exports"], function (exports) {
+  "use strict";
+
+  exports["default"] = Ember.HTMLBars.template({ "id": "RUSZsy/M", "block": "{\"statements\":[[\"block\",[\"ember-wormhole\"],null,[[\"to\",\"renderInPlace\"],[[\"get\",[\"destinationElementId\"]],[\"get\",[\"renderInPlace\"]]]],2]],\"locals\":[],\"named\":[],\"yields\":[\"default\"],\"blocks\":[{\"statements\":[[\"text\",\"        \"],[\"yield\",\"default\"],[\"text\",\"\\n\"]],\"locals\":[]},{\"statements\":[[\"block\",[\"ember-modal-dialog-positioned-container\"],null,[[\"targetAttachment\",\"target\",\"class\"],[[\"get\",[\"targetAttachment\"]],[\"get\",[\"target\"]],[\"helper\",[\"concat\"],[[\"helper\",[\"if\"],[[\"get\",[\"containerClassNamesString\"]],[\"helper\",[\"-normalize-class\"],[\"containerClassNamesString\",[\"get\",[\"containerClassNamesString\"]]],null]],null],\" \",[\"helper\",[\"if\"],[[\"get\",[\"targetAttachmentClass\"]],[\"helper\",[\"-normalize-class\"],[\"targetAttachmentClass\",[\"get\",[\"targetAttachmentClass\"]]],null]],null],\" \",[\"helper\",[\"if\"],[[\"get\",[\"container-class\"]],[\"helper\",[\"-normalize-class\"],[\"container-class\",[\"get\",[\"container-class\"]]],null]],null],\" \"],null]]],0]],\"locals\":[]},{\"statements\":[[\"text\",\"  \"],[\"open-element\",\"div\",[]],[\"dynamic-attr\",\"class\",[\"concat\",[[\"unknown\",[\"wrapperClassNamesString\"]],\" \",[\"unknown\",[\"wrapper-class\"]]]]],[\"flush-element\"],[\"text\",\"\\n\"],[\"block\",[\"modal-dialog-overlay\"],null,[[\"action\",\"class\"],[\"close\",[\"helper\",[\"concat\"],[[\"helper\",[\"if\"],[[\"get\",[\"overlayClassNamesString\"]],[\"helper\",[\"-normalize-class\"],[\"overlayClassNamesString\",[\"get\",[\"overlayClassNamesString\"]]],null]],null],\" \",[\"helper\",[\"if\"],[[\"get\",[\"translucentOverlay\"]],\"translucent\"],null],\" \",[\"helper\",[\"if\"],[[\"get\",[\"overlay-class\"]],[\"helper\",[\"-normalize-class\"],[\"overlay-class\",[\"get\",[\"overlay-class\"]]],null]],null],\" \"],null]]],1],[\"text\",\"  \"],[\"close-element\"],[\"text\",\"\\n\"]],\"locals\":[]}],\"hasPartials\":false}", "meta": { "moduleName": "modules/ember-modal-dialog/templates/components/modal-dialog.hbs" } });
+});
+define("ember-modal-dialog/templates/components/tether-dialog", ["exports"], function (exports) {
+  "use strict";
+
+  exports["default"] = Ember.HTMLBars.template({ "id": "0WHZOv0j", "block": "{\"statements\":[[\"block\",[\"ember-wormhole\"],null,[[\"to\",\"renderInPlace\"],[[\"get\",[\"destinationElementId\"]],[\"get\",[\"renderInPlace\"]]]],5],[\"block\",[\"if\"],[[\"get\",[\"renderInPlace\"]]],null,3,1]],\"locals\":[],\"named\":[],\"yields\":[\"default\"],\"blocks\":[{\"statements\":[[\"text\",\"    \"],[\"yield\",\"default\"],[\"text\",\"\\n\"]],\"locals\":[]},{\"statements\":[[\"block\",[\"ember-tether\"],null,[[\"target\",\"attachment\",\"targetAttachment\",\"targetModifier\",\"classPrefix\",\"offset\",\"targetOffset\",\"constraints\",\"class\"],[[\"get\",[\"target\"]],[\"get\",[\"attachment\"]],[\"get\",[\"targetAttachment\"]],[\"get\",[\"targetModifier\"]],[\"get\",[\"tetherClassPrefix\"]],[\"get\",[\"offset\"]],[\"get\",[\"targetOffset\"]],[\"get\",[\"constraints\"]],[\"helper\",[\"concat\"],[[\"helper\",[\"if\"],[[\"get\",[\"containerClassNamesString\"]],[\"helper\",[\"-normalize-class\"],[\"containerClassNamesString\",[\"get\",[\"containerClassNamesString\"]]],null]],null],\" \",[\"helper\",[\"if\"],[[\"get\",[\"container-class\"]],[\"helper\",[\"-normalize-class\"],[\"container-class\",[\"get\",[\"container-class\"]]],null]],null],\" \"],null]]],0]],\"locals\":[]},{\"statements\":[[\"text\",\"    \"],[\"yield\",\"default\"],[\"text\",\"\\n\"]],\"locals\":[]},{\"statements\":[[\"block\",[\"ember-modal-dialog-positioned-container\"],null,[[\"targetAttachment\",\"target\",\"renderInPlace\",\"class\"],[[\"get\",[\"targetAttachment\"]],[\"get\",[\"target\"]],[\"get\",[\"renderInPlace\"]],[\"helper\",[\"concat\"],[[\"helper\",[\"if\"],[[\"get\",[\"containerClassNamesString\"]],[\"helper\",[\"-normalize-class\"],[\"containerClassNamesString\",[\"get\",[\"containerClassNamesString\"]]],null]],null],\" \",[\"helper\",[\"if\"],[[\"get\",[\"targetAttachmentClass\"]],[\"helper\",[\"-normalize-class\"],[\"targetAttachmentClass\",[\"get\",[\"targetAttachmentClass\"]]],null]],null],\" \",[\"helper\",[\"if\"],[[\"get\",[\"container-class\"]],[\"helper\",[\"-normalize-class\"],[\"container-class\",[\"get\",[\"container-class\"]]],null]],null],\" \"],null]]],2]],\"locals\":[]},{\"statements\":[[\"text\",\"    \"],[\"append\",[\"helper\",[\"modal-dialog-overlay\"],null,[[\"action\",\"class\"],[\"close\",[\"helper\",[\"concat\"],[[\"helper\",[\"if\"],[[\"get\",[\"overlayClassNamesString\"]],[\"helper\",[\"-normalize-class\"],[\"overlayClassNamesString\",[\"get\",[\"overlayClassNamesString\"]]],null]],null],\" \",[\"helper\",[\"if\"],[[\"get\",[\"translucentOverlay\"]],\"translucent\"],null],\" \",[\"helper\",[\"if\"],[[\"get\",[\"overlay-class\"]],[\"helper\",[\"-normalize-class\"],[\"overlay-class\",[\"get\",[\"overlay-class\"]]],null]],null],\" \"],null]]]],false],[\"text\",\"\\n\"]],\"locals\":[]},{\"statements\":[[\"block\",[\"if\"],[[\"get\",[\"hasOverlay\"]]],null,4]],\"locals\":[]}],\"hasPartials\":false}", "meta": { "moduleName": "modules/ember-modal-dialog/templates/components/tether-dialog.hbs" } });
 });
 define('ember-resolver/container-debug-adapter', ['exports', 'ember', 'ember-resolver/utils/module-registry'], function (exports, _ember, _emberResolverUtilsModuleRegistry) {
   'use strict';
@@ -92455,6 +92779,186 @@ define('ember-resolver/utils/module-registry', ['exports', 'ember'], function (e
   };
 
   exports['default'] = ModuleRegistry;
+});
+define('ember-route-action-helper/-private/internals', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  var ClosureActionModule = undefined;
+
+  if ('ember-htmlbars/keywords/closure-action' in _ember['default'].__loader.registry) {
+    ClosureActionModule = _ember['default'].__loader.require('ember-htmlbars/keywords/closure-action');
+  } else if ('ember-routing-htmlbars/keywords/closure-action' in _ember['default'].__loader.registry) {
+    ClosureActionModule = _ember['default'].__loader.require('ember-routing-htmlbars/keywords/closure-action');
+  } else {
+    ClosureActionModule = {};
+  }
+
+  var ACTION = ClosureActionModule.ACTION;
+  exports.ACTION = ACTION;
+});
+define('ember-route-action-helper/helpers/route-action', ['exports', 'ember', 'ember-route-action-helper/-private/internals'], function (exports, _ember, _emberRouteActionHelperPrivateInternals) {
+  'use strict';
+
+  function _toConsumableArray(arr) {
+    if (Array.isArray(arr)) {
+      for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];return arr2;
+    } else {
+      return Array.from(arr);
+    }
+  }
+
+  function _toArray(arr) {
+    return Array.isArray(arr) ? arr : Array.from(arr);
+  }
+
+  var emberArray = _ember['default'].A;
+  var Helper = _ember['default'].Helper;
+  var assert = _ember['default'].assert;
+  var computed = _ember['default'].computed;
+  var typeOf = _ember['default'].typeOf;
+  var get = _ember['default'].get;
+  var getOwner = _ember['default'].getOwner;
+  var run = _ember['default'].run;
+  var runInDebug = _ember['default'].runInDebug;
+
+  function getRoutes(router) {
+    return emberArray(router.router.currentHandlerInfos).mapBy('handler').reverse();
+  }
+
+  function getRouteWithAction(router, actionName) {
+    var action = undefined;
+    var handler = emberArray(getRoutes(router)).find(function (route) {
+      var actions = route.actions || route._actions;
+      action = actions[actionName];
+
+      return typeOf(action) === 'function';
+    });
+
+    return { action: action, handler: handler };
+  }
+
+  exports['default'] = Helper.extend({
+    router: computed(function () {
+      return getOwner(this).lookup('router:main');
+    }).readOnly(),
+
+    compute: function compute(_ref) {
+      var _ref2 = _toArray(_ref);
+
+      var actionName = _ref2[0];
+
+      var params = _ref2.slice(1);
+
+      var router = get(this, 'router');
+      assert('[ember-route-action-helper] Unable to lookup router', router);
+
+      runInDebug(function () {
+        var _getRouteWithAction = getRouteWithAction(router, actionName);
+
+        var handler = _getRouteWithAction.handler;
+
+        assert('[ember-route-action-helper] Unable to find action ' + actionName, handler);
+      });
+
+      var routeAction = function routeAction() {
+        var _getRouteWithAction2 = getRouteWithAction(router, actionName);
+
+        var action = _getRouteWithAction2.action;
+        var handler = _getRouteWithAction2.handler;
+
+        for (var _len = arguments.length, invocationArgs = Array(_len), _key = 0; _key < _len; _key++) {
+          invocationArgs[_key] = arguments[_key];
+        }
+
+        var args = params.concat(invocationArgs);
+        return run.join.apply(run, [handler, action].concat(_toConsumableArray(args)));
+      };
+
+      routeAction[_emberRouteActionHelperPrivateInternals.ACTION] = true;
+
+      return routeAction;
+    }
+  });
+});
+define('ember-wormhole/components/ember-wormhole', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+  var observer = _ember['default'].observer;
+  var run = _ember['default'].run;
+
+  exports['default'] = _ember['default'].Component.extend({
+    to: computed.alias('destinationElementId'),
+    destinationElementId: null,
+    destinationElement: computed('destinationElementId', 'renderInPlace', function () {
+      return this.get('renderInPlace') ? this.element : document.getElementById(this.get('destinationElementId'));
+    }),
+    renderInPlace: false,
+
+    didInsertElement: function didInsertElement() {
+      this._super.apply(this, arguments);
+      this._firstNode = this.element.firstChild;
+      this._lastNode = this.element.lastChild;
+      this.appendToDestination();
+    },
+
+    willDestroyElement: function willDestroyElement() {
+      var _this = this;
+
+      this._super.apply(this, arguments);
+      var firstNode = this._firstNode;
+      var lastNode = this._lastNode;
+      run.schedule('render', function () {
+        _this.removeRange(firstNode, lastNode);
+      });
+    },
+
+    destinationDidChange: observer('destinationElement', function () {
+      var destinationElement = this.get('destinationElement');
+      if (destinationElement !== this._firstNode.parentNode) {
+        run.schedule('render', this, 'appendToDestination');
+      }
+    }),
+
+    appendToDestination: function appendToDestination() {
+      var destinationElement = this.get('destinationElement');
+      var currentActiveElement = document.activeElement;
+      if (!destinationElement) {
+        var destinationElementId = this.get('destinationElementId');
+        if (destinationElementId) {
+          throw new Error('ember-wormhole failed to render into \'#' + this.get('destinationElementId') + '\' because the element is not in the DOM');
+        }
+        throw new Error('ember-wormhole failed to render content because the destinationElementId was set to an undefined or falsy value.');
+      }
+
+      this.appendRange(destinationElement, this._firstNode, this._lastNode);
+      if (document.activeElement !== currentActiveElement) {
+        currentActiveElement.focus();
+      }
+    },
+
+    appendRange: function appendRange(destinationElement, firstNode, lastNode) {
+      while (firstNode) {
+        destinationElement.insertBefore(firstNode, null);
+        firstNode = firstNode !== lastNode ? lastNode.parentNode.firstChild : null;
+      }
+    },
+
+    removeRange: function removeRange(firstNode, lastNode) {
+      var node = lastNode;
+      do {
+        var next = node.previousSibling;
+        if (node.parentNode) {
+          node.parentNode.removeChild(node);
+          if (node === firstNode) {
+            break;
+          }
+        }
+        node = next;
+      } while (node);
+    }
+
+  });
 });
 ;/* jshint ignore:start */
 
