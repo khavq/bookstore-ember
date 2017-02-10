@@ -10,6 +10,7 @@ Router.map(function() {
   this.route('book', { path: '/'});
   this.route('author', { path: '/author/:author_id'});
   this.route('publishing-houses');
+  this.route('dashboard');
 });
 
 export default Router;

@@ -9,7 +9,7 @@ export default Ember.Route.extend({
 
 	model(params) {
 		console.log(params);
-		return this.store.query('book', { limit: 5 });
+		return this.store.query('book', params);
 	},
 
 	actions: {

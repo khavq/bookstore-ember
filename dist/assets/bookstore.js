@@ -61,6 +61,7 @@ define('bookstore/components/book-cover', ['exports', 'ember'], function (export
 
 				this.get('book').reload().then(function () {
 					_this.set('isShowingModal', true);
+					console.log("isShowingModal=true");
 					_this.get('blurBackground')(true);
 				});
 			},
@@ -69,6 +70,24 @@ define('bookstore/components/book-cover', ['exports', 'ember'], function (export
 				this.set('isShowingModal', false);
 				this.get('blurBackground')(false);
 			}
+		}
+	});
+});
+define('bookstore/components/dashboard-main', ['exports', 'ember'], function (exports, _ember) {
+	exports['default'] = _ember['default'].Component.extend({
+		actions: {
+			collapse: function collapse() {
+				this.$('#instructions').collapse('toggle');
+			}
+		},
+
+		didInsertElement: function didInsertElement() {
+			this.$('#toggle').tooltip({ title: "Click here to toggle instructions" });
+		},
+
+		willDestroyElement: function willDestroyElement() {
+			// remember to clean up your room, kids
+			this.$('#toggle').tooltip('destroy');
 		}
 	});
 });
@@ -88,6 +107,30 @@ define('bookstore/components/ember-wormhole', ['exports', 'ember-wormhole/compon
     }
   });
 });
+define('bookstore/components/fa-icon', ['exports', 'ember-font-awesome/components/fa-icon'], function (exports, _emberFontAwesomeComponentsFaIcon) {
+  Object.defineProperty(exports, 'default', {
+    enumerable: true,
+    get: function get() {
+      return _emberFontAwesomeComponentsFaIcon['default'];
+    }
+  });
+});
+define('bookstore/components/fa-list', ['exports', 'ember-font-awesome/components/fa-list'], function (exports, _emberFontAwesomeComponentsFaList) {
+  Object.defineProperty(exports, 'default', {
+    enumerable: true,
+    get: function get() {
+      return _emberFontAwesomeComponentsFaList['default'];
+    }
+  });
+});
+define('bookstore/components/fa-stack', ['exports', 'ember-font-awesome/components/fa-stack'], function (exports, _emberFontAwesomeComponentsFaStack) {
+  Object.defineProperty(exports, 'default', {
+    enumerable: true,
+    get: function get() {
+      return _emberFontAwesomeComponentsFaStack['default'];
+    }
+  });
+});
 define('bookstore/components/modal-dialog-overlay', ['exports', 'ember-modal-dialog/components/modal-dialog-overlay'], function (exports, _emberModalDialogComponentsModalDialogOverlay) {
   Object.defineProperty(exports, 'default', {
     enumerable: true,
@@ -103,6 +146,12 @@ define('bookstore/components/modal-dialog', ['exports', 'ember-modal-dialog/comp
       return _emberModalDialogComponentsModalDialog['default'];
     }
   });
+});
+define('bookstore/components/nav-bar', ['exports', 'ember'], function (exports, _ember) {
+  exports['default'] = _ember['default'].Component.extend({});
+});
+define('bookstore/components/side-bar', ['exports', 'ember'], function (exports, _ember) {
+  exports['default'] = _ember['default'].Component.extend({});
 });
 define('bookstore/components/tether-dialog', ['exports', 'ember-modal-dialog/components/tether-dialog'], function (exports, _emberModalDialogComponentsTetherDialog) {
   Object.defineProperty(exports, 'default', {
@@ -370,6 +419,7 @@ define('bookstore/router', ['exports', 'ember', 'bookstore/config/environment'],
     this.route('book', { path: '/' });
     this.route('author', { path: '/author/:author_id' });
     this.route('publishing-houses');
+    this.route('dashboard');
   });
 
   exports['default'] = Router;
@@ -400,7 +450,7 @@ define('bookstore/routes/book', ['exports', 'ember'], function (exports, _ember)
 
 		model: function model(params) {
 			console.log(params);
-			return this.store.query('book', { limit: 5 });
+			return this.store.query('book', params);
 		},
 
 		actions: {
@@ -410,6 +460,13 @@ define('bookstore/routes/book', ['exports', 'ember'], function (exports, _ember)
 			}
 		}
 	});
+});
+define("bookstore/routes/dashboard", ["exports", "ember"], function (exports, _ember) {
+  exports["default"] = _ember["default"].Route.extend({
+    model: function model() {
+      return [["1,001", "Lorem", "ipsum", "dolor", "sit"], ["1,002", "amet", "consectetur", "adipiscing", "elit"], ["1,003", "Integer", "nec", "odio", "Praesent"], ["1,003", "libero", "Sed", "cursus", "ante"], ["1,004", "dapibus", "diam", "Sed", "nisi"], ["1,005", "Nulla", "quis", "sem", "at"], ["1,006", "nibh", "elementum", "imperdiet", "Duis"], ["1,007", "sagittis", "ipsum", "Praesent", "mauris"], ["1,008", "Fusce", "nec", "tellus", "sed"], ["1,009", "augue", "semper", "porta", "Mauris"], ["1,010", "massa", "Vestibulum", "lacinia", "arcu"], ["1,011", "eget", "nulla", "Class", "aptent"], ["1,012", "taciti", "sociosqu", "ad", "litora"], ["1,013", "torquent", "per", "conubia", "nostra"], ["1,014", "per", "inceptos", "himenaeos", "Curabitur"], ["1,015", "sodales", "ligula", "in", "libero"]];
+    }
+  });
 });
 define('bookstore/routes/publishing-houses', ['exports', 'ember'], function (exports, _ember) {
   exports['default'] = _ember['default'].Route.extend({});
@@ -446,7 +503,7 @@ define('bookstore/services/modal-dialog', ['exports', 'ember', 'ember-modal-dial
   });
 });
 define("bookstore/templates/application", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template({ "id": "o4SQ2m9I", "block": "{\"statements\":[[\"open-element\",\"div\",[]],[\"dynamic-attr\",\"class\",[\"concat\",[[\"helper\",[\"if\"],[[\"get\",[\"blur\"]],\"blur-background\",\"\"],null]]]],[\"flush-element\"],[\"text\",\"\\n\\t\"],[\"append\",[\"unknown\",[\"outlet\"]],false],[\"text\",\"\\n\"],[\"close-element\"]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[],\"hasPartials\":false}", "meta": { "moduleName": "bookstore/templates/application.hbs" } });
+  exports["default"] = Ember.HTMLBars.template({ "id": "iiMQrnWH", "block": "{\"statements\":[[\"open-element\",\"div\",[]],[\"dynamic-attr\",\"class\",[\"concat\",[[\"helper\",[\"if\"],[[\"get\",[\"blur\"]],\"blur-background\",\"\"],null]]]],[\"flush-element\"],[\"text\",\"\\n\\t\"],[\"append\",[\"unknown\",[\"nav-bar\"]],false],[\"text\",\"\\n\\t\"],[\"append\",[\"unknown\",[\"outlet\"]],false],[\"text\",\"\\n\"],[\"close-element\"]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[],\"hasPartials\":false}", "meta": { "moduleName": "bookstore/templates/application.hbs" } });
 });
 define("bookstore/templates/author", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template({ "id": "9QhVHAF8", "block": "{\"statements\":[[\"open-element\",\"h3\",[]],[\"flush-element\"],[\"append\",[\"unknown\",[\"model\",\"name\"]],false],[\"close-element\"],[\"text\",\"\\n\\n\"],[\"open-element\",\"strong\",[]],[\"flush-element\"],[\"text\",\"Biography\"],[\"close-element\"],[\"text\",\": Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\\n\\n\"],[\"open-element\",\"h4\",[]],[\"flush-element\"],[\"text\",\"Published titles:\"],[\"close-element\"],[\"text\",\"\\n\"],[\"open-element\",\"ul\",[]],[\"flush-element\"],[\"text\",\"\\n\"],[\"block\",[\"each\"],[[\"get\",[\"model\",\"books\"]]],null,0],[\"close-element\"]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[{\"statements\":[[\"text\",\"  \"],[\"append\",[\"helper\",[\"book-cover\"],null,[[\"book\",\"blurBackground\"],[[\"get\",[\"book\"]],[\"helper\",[\"route-action\"],[\"blurBackground\"],null]]]],false],[\"text\",\"\\n\"]],\"locals\":[\"book\"]}],\"hasPartials\":false}", "meta": { "moduleName": "bookstore/templates/author.hbs" } });
@@ -455,7 +512,10 @@ define("bookstore/templates/book", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template({ "id": "G+alZu3l", "block": "{\"statements\":[[\"block\",[\"if\"],[[\"get\",[\"showAll\"]]],null,1],[\"open-element\",\"ul\",[]],[\"flush-element\"],[\"text\",\"\\n\"],[\"block\",[\"each\"],[[\"get\",[\"model\"]]],null,0],[\"close-element\"],[\"text\",\"\\n\\n\"]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[{\"statements\":[[\"text\",\"    \"],[\"append\",[\"helper\",[\"book-cover\"],null,[[\"book\",\"blurBackground\"],[[\"get\",[\"book\"]],[\"helper\",[\"route-action\"],[\"blurBackground\"],null]]]],false],[\"text\",\"\\n\"]],\"locals\":[\"book\"]},{\"statements\":[[\"text\",\"  \"],[\"open-element\",\"button\",[]],[\"modifier\",[\"action\"],[[\"get\",[null]],\"showAll\"]],[\"flush-element\"],[\"text\",\"Show All\"],[\"close-element\"],[\"text\",\"\\n\"]],\"locals\":[]}],\"hasPartials\":false}", "meta": { "moduleName": "bookstore/templates/book.hbs" } });
 });
 define("bookstore/templates/components/book-cover", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template({ "id": "90CvRjcp", "block": "{\"statements\":[[\"open-element\",\"li\",[]],[\"modifier\",[\"action\"],[[\"get\",[null]],\"open\"]],[\"flush-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"strong\",[]],[\"flush-element\"],[\"append\",[\"unknown\",[\"book\",\"title\"]],false],[\"close-element\"],[\"open-element\",\"br\",[]],[\"flush-element\"],[\"close-element\"],[\"open-element\",\"br\",[]],[\"flush-element\"],[\"close-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"em\",[]],[\"flush-element\"],[\"text\",\"by\"],[\"close-element\"],[\"text\",\"\\n  \"],[\"block\",[\"link-to\"],[\"author\",[\"get\",[\"book\",\"author\",\"id\"]]],[[\"class\"],[\"author\"]],2],[\"text\",\"\\n\"],[\"close-element\"],[\"text\",\"\\n\\n\"],[\"block\",[\"if\"],[[\"get\",[\"isShowingModal\"]]],null,1]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[{\"statements\":[[\"text\",\"\\t\\t\"],[\"open-element\",\"div\",[]],[\"static-attr\",\"class\",\"modal\"],[\"flush-element\"],[\"text\",\"\\n\\t\\t\\t\"],[\"open-element\",\"h3\",[]],[\"flush-element\"],[\"text\",\"Pucharse is confirm\"],[\"close-element\"],[\"text\",\"\\n\\t\\t\\tYou want to by \"],[\"open-element\",\"strong\",[]],[\"flush-element\"],[\"append\",[\"unknown\",[\"book\",\"title\"]],false],[\"close-element\"],[\"text\",\" by \"],[\"append\",[\"unknown\",[\"book\",\"author\",\"name\"]],false],[\"text\",\".\\n\\n\\t\\t\\t\"],[\"open-element\",\"p\",[]],[\"flush-element\"],[\"open-element\",\"button\",[]],[\"modifier\",[\"action\"],[[\"get\",[null]],\"close\"]],[\"flush-element\"],[\"text\",\"Purchase for $\"],[\"append\",[\"unknown\",[\"book\",\"price\"]],false],[\"text\",\"!\"],[\"close-element\"],[\"close-element\"],[\"text\",\"\\n\\t\\t\\t\"],[\"open-element\",\"p\",[]],[\"flush-element\"],[\"open-element\",\"em\",[]],[\"flush-element\"],[\"text\",\"Thank you! We will email you your ebook\"],[\"close-element\"],[\"close-element\"],[\"text\",\"\\n\\t\\t\"],[\"close-element\"],[\"text\",\"\\n\"]],\"locals\":[]},{\"statements\":[[\"block\",[\"modal-dialog\"],null,[[\"close\",\"clickOutsideToClose\"],[\"close\",true]],0]],\"locals\":[]},{\"statements\":[[\"append\",[\"unknown\",[\"book\",\"author\",\"name\"]],false]],\"locals\":[]}],\"hasPartials\":false}", "meta": { "moduleName": "bookstore/templates/components/book-cover.hbs" } });
+  exports["default"] = Ember.HTMLBars.template({ "id": "tvVR3kLU", "block": "{\"statements\":[[\"open-element\",\"li\",[]],[\"static-attr\",\"class\",\"book\"],[\"modifier\",[\"action\"],[[\"get\",[null]],\"open\"]],[\"flush-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"strong\",[]],[\"flush-element\"],[\"append\",[\"unknown\",[\"book\",\"title\"]],false],[\"close-element\"],[\"open-element\",\"br\",[]],[\"flush-element\"],[\"close-element\"],[\"open-element\",\"br\",[]],[\"flush-element\"],[\"close-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"em\",[]],[\"flush-element\"],[\"text\",\"by\"],[\"close-element\"],[\"text\",\"\\n  \"],[\"block\",[\"link-to\"],[\"author\",[\"get\",[\"book\",\"author\",\"id\"]]],[[\"class\"],[\"author\"]],2],[\"text\",\"\\n\"],[\"close-element\"],[\"text\",\"\\n\\n\"],[\"block\",[\"if\"],[[\"get\",[\"isShowingModal\"]]],null,1]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[{\"statements\":[[\"text\",\"\\t\\t\"],[\"open-element\",\"div\",[]],[\"static-attr\",\"class\",\"modal1\"],[\"flush-element\"],[\"text\",\"\\n\\t\\t\\t\"],[\"open-element\",\"h3\",[]],[\"flush-element\"],[\"text\",\"Pucharse is confirm\"],[\"close-element\"],[\"text\",\"\\n\\t\\t\\tYou want to by \"],[\"open-element\",\"strong\",[]],[\"flush-element\"],[\"append\",[\"unknown\",[\"book\",\"title\"]],false],[\"close-element\"],[\"text\",\" by \"],[\"append\",[\"unknown\",[\"book\",\"author\",\"name\"]],false],[\"text\",\".\\n\\n\\t\\t\\t\"],[\"open-element\",\"p\",[]],[\"flush-element\"],[\"open-element\",\"button\",[]],[\"modifier\",[\"action\"],[[\"get\",[null]],\"close\"]],[\"flush-element\"],[\"text\",\"Purchase for $\"],[\"append\",[\"unknown\",[\"book\",\"price\"]],false],[\"text\",\"!\"],[\"close-element\"],[\"close-element\"],[\"text\",\"\\n\\t\\t\\t\"],[\"open-element\",\"p\",[]],[\"flush-element\"],[\"open-element\",\"em\",[]],[\"flush-element\"],[\"text\",\"Thank you! We will email you your ebook\"],[\"close-element\"],[\"close-element\"],[\"text\",\"\\n\\t\\t\"],[\"close-element\"],[\"text\",\"\\n\"]],\"locals\":[]},{\"statements\":[[\"block\",[\"modal-dialog\"],null,[[\"close\",\"clickOutsideToClose\"],[\"close\",true]],0]],\"locals\":[]},{\"statements\":[[\"append\",[\"unknown\",[\"book\",\"author\",\"name\"]],false]],\"locals\":[]}],\"hasPartials\":false}", "meta": { "moduleName": "bookstore/templates/components/book-cover.hbs" } });
+});
+define("bookstore/templates/components/dashboard-main", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template({ "id": "MggFpuW+", "block": "{\"statements\":[[\"open-element\",\"button\",[]],[\"static-attr\",\"id\",\"toggle\"],[\"static-attr\",\"type\",\"button\"],[\"static-attr\",\"class\",\"btn btn-default\"],[\"modifier\",[\"action\"],[[\"get\",[null]],\"collapse\"]],[\"flush-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"span\",[]],[\"static-attr\",\"class\",\"glyphicon glyphicon-book\"],[\"static-attr\",\"aria-hidden\",\"true\"],[\"flush-element\"],[\"close-element\"],[\"text\",\" Instructions\\n\"],[\"close-element\"],[\"text\",\"\\n\\n\"],[\"open-element\",\"div\",[]],[\"static-attr\",\"id\",\"instructions\"],[\"static-attr\",\"class\",\"panel-collapse collapse\"],[\"flush-element\"],[\"text\",\"\\n \"],[\"open-element\",\"div\",[]],[\"static-attr\",\"class\",\"well\"],[\"flush-element\"],[\"text\",\"\\n   \"],[\"open-element\",\"h2\",[]],[\"flush-element\"],[\"text\",\"Instructions\"],[\"close-element\"],[\"text\",\"\\n   \"],[\"open-element\",\"p\",[]],[\"flush-element\"],[\"text\",\"Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\"],[\"close-element\"],[\"text\",\"\\n \"],[\"close-element\"],[\"text\",\"\\n\"],[\"close-element\"],[\"text\",\"\\n\\n\"],[\"open-element\",\"h1\",[]],[\"static-attr\",\"class\",\"page-header\"],[\"flush-element\"],[\"text\",\"Dashboard\"],[\"close-element\"],[\"text\",\"\\n\\n\"],[\"open-element\",\"h2\",[]],[\"flush-element\"],[\"text\",\"Articles\"],[\"close-element\"],[\"text\",\"\\n\"],[\"open-element\",\"div\",[]],[\"static-attr\",\"class\",\"table-responsive\"],[\"flush-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"table\",[]],[\"static-attr\",\"class\",\"table table-striped\"],[\"flush-element\"],[\"text\",\"\\n    \"],[\"open-element\",\"thead\",[]],[\"flush-element\"],[\"text\",\"\\n      \"],[\"open-element\",\"tr\",[]],[\"flush-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"th\",[]],[\"flush-element\"],[\"text\",\"#\"],[\"close-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"th\",[]],[\"flush-element\"],[\"text\",\"Header\"],[\"close-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"th\",[]],[\"flush-element\"],[\"text\",\"Header\"],[\"close-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"th\",[]],[\"flush-element\"],[\"text\",\"Header\"],[\"close-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"th\",[]],[\"flush-element\"],[\"text\",\"Header\"],[\"close-element\"],[\"text\",\"\\n      \"],[\"close-element\"],[\"text\",\"\\n    \"],[\"close-element\"],[\"text\",\"\\n    \"],[\"open-element\",\"tbody\",[]],[\"flush-element\"],[\"text\",\"\\n\"],[\"block\",[\"each\"],[[\"get\",[\"articles\"]]],null,0],[\"text\",\"    \"],[\"close-element\"],[\"text\",\"\\n  \"],[\"close-element\"],[\"text\",\"\\n\"],[\"close-element\"]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[{\"statements\":[[\"text\",\"      \"],[\"open-element\",\"tr\",[]],[\"flush-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"td\",[]],[\"flush-element\"],[\"append\",[\"unknown\",[\"article\",\"0\"]],false],[\"close-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"td\",[]],[\"flush-element\"],[\"append\",[\"unknown\",[\"article\",\"1\"]],false],[\"close-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"td\",[]],[\"flush-element\"],[\"append\",[\"unknown\",[\"article\",\"2\"]],false],[\"close-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"td\",[]],[\"flush-element\"],[\"append\",[\"unknown\",[\"article\",\"3\"]],false],[\"close-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"td\",[]],[\"flush-element\"],[\"append\",[\"unknown\",[\"article\",\"4\"]],false],[\"close-element\"],[\"text\",\"\\n      \"],[\"close-element\"],[\"text\",\"\\n\"]],\"locals\":[\"article\"]}],\"hasPartials\":false}", "meta": { "moduleName": "bookstore/templates/components/dashboard-main.hbs" } });
 });
 define('bookstore/templates/components/modal-dialog', ['exports', 'ember-modal-dialog/templates/components/modal-dialog'], function (exports, _emberModalDialogTemplatesComponentsModalDialog) {
   Object.defineProperty(exports, 'default', {
@@ -465,6 +525,12 @@ define('bookstore/templates/components/modal-dialog', ['exports', 'ember-modal-d
     }
   });
 });
+define("bookstore/templates/components/nav-bar", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template({ "id": "tUqsWuyg", "block": "{\"statements\":[[\"open-element\",\"nav\",[]],[\"static-attr\",\"class\",\"navbar navbar-inverse navbar-fixed-top\"],[\"flush-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"div\",[]],[\"static-attr\",\"class\",\"container-fluid\"],[\"flush-element\"],[\"text\",\"\\n    \"],[\"open-element\",\"div\",[]],[\"static-attr\",\"class\",\"navbar-header\"],[\"flush-element\"],[\"text\",\"\\n      \"],[\"open-element\",\"button\",[]],[\"static-attr\",\"type\",\"button\"],[\"static-attr\",\"class\",\"navbar-toggle collapsed\"],[\"static-attr\",\"data-toggle\",\"collapse\"],[\"static-attr\",\"data-target\",\"#navbar\"],[\"static-attr\",\"aria-expanded\",\"false\"],[\"static-attr\",\"aria-controls\",\"navbar\"],[\"flush-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"span\",[]],[\"static-attr\",\"class\",\"sr-only\"],[\"flush-element\"],[\"text\",\"Toggle navigation\"],[\"close-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"span\",[]],[\"static-attr\",\"class\",\"icon-bar\"],[\"flush-element\"],[\"close-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"span\",[]],[\"static-attr\",\"class\",\"icon-bar\"],[\"flush-element\"],[\"close-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"span\",[]],[\"static-attr\",\"class\",\"icon-bar\"],[\"flush-element\"],[\"close-element\"],[\"text\",\"\\n      \"],[\"close-element\"],[\"text\",\"\\n      \"],[\"block\",[\"link-to\"],[\"book\"],[[\"class\"],[\"navbar-brand\"]],1],[\"text\",\"\\n    \"],[\"close-element\"],[\"text\",\"\\n    \"],[\"open-element\",\"div\",[]],[\"static-attr\",\"id\",\"navbar\"],[\"static-attr\",\"class\",\"navbar-collapse collapse\"],[\"flush-element\"],[\"text\",\"\\n      \"],[\"open-element\",\"ul\",[]],[\"static-attr\",\"class\",\"nav navbar-nav navbar-right\"],[\"flush-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"li\",[]],[\"flush-element\"],[\"text\",\"\\n          \"],[\"block\",[\"link-to\"],[\"dashboard\"],[[\"class\"],[\"nav-item nav-link\"]],0],[\"text\",\"\\n        \"],[\"close-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"li\",[]],[\"flush-element\"],[\"text\",\"\\n          \"],[\"open-element\",\"a\",[]],[\"static-attr\",\"href\",\"#\"],[\"static-attr\",\"class\",\"nav-item nav-link\"],[\"flush-element\"],[\"text\",\"Settings\"],[\"close-element\"],[\"text\",\"\\n        \"],[\"close-element\"],[\"text\",\"\\n      \"],[\"close-element\"],[\"text\",\"\\n      \"],[\"open-element\",\"form\",[]],[\"static-attr\",\"class\",\"navbar-form navbar-right\"],[\"flush-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"input\",[]],[\"static-attr\",\"type\",\"text\"],[\"static-attr\",\"class\",\"form-control\"],[\"static-attr\",\"placeholder\",\"Search...\"],[\"flush-element\"],[\"close-element\"],[\"text\",\"\\n      \"],[\"close-element\"],[\"text\",\"\\n    \"],[\"close-element\"],[\"text\",\"\\n  \"],[\"close-element\"],[\"text\",\"\\n\"],[\"close-element\"]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[{\"statements\":[[\"text\",\"Dashboard\"]],\"locals\":[]},{\"statements\":[[\"text\",\"Awesomeproject\"]],\"locals\":[]}],\"hasPartials\":false}", "meta": { "moduleName": "bookstore/templates/components/nav-bar.hbs" } });
+});
+define("bookstore/templates/components/side-bar", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template({ "id": "G5J1D2mb", "block": "{\"statements\":[[\"open-element\",\"ul\",[]],[\"static-attr\",\"class\",\"nav nav-sidebar\"],[\"flush-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"li\",[]],[\"static-attr\",\"class\",\"active\"],[\"flush-element\"],[\"open-element\",\"a\",[]],[\"static-attr\",\"href\",\"#\"],[\"flush-element\"],[\"text\",\"Overview \"],[\"open-element\",\"span\",[]],[\"static-attr\",\"class\",\"sr-only\"],[\"flush-element\"],[\"text\",\"(current)\"],[\"close-element\"],[\"close-element\"],[\"close-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"li\",[]],[\"flush-element\"],[\"open-element\",\"a\",[]],[\"static-attr\",\"href\",\"#\"],[\"flush-element\"],[\"text\",\"Reports\"],[\"close-element\"],[\"close-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"li\",[]],[\"flush-element\"],[\"open-element\",\"a\",[]],[\"static-attr\",\"href\",\"#\"],[\"flush-element\"],[\"text\",\"Analytics\"],[\"close-element\"],[\"close-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"li\",[]],[\"flush-element\"],[\"open-element\",\"a\",[]],[\"static-attr\",\"href\",\"#\"],[\"flush-element\"],[\"text\",\"Export\"],[\"close-element\"],[\"close-element\"],[\"text\",\"\\n\"],[\"close-element\"],[\"text\",\"\\n\"],[\"open-element\",\"ul\",[]],[\"static-attr\",\"class\",\"nav nav-sidebar\"],[\"flush-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"li\",[]],[\"flush-element\"],[\"open-element\",\"a\",[]],[\"static-attr\",\"href\",\"\"],[\"flush-element\"],[\"text\",\"Nav item\"],[\"close-element\"],[\"close-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"li\",[]],[\"flush-element\"],[\"open-element\",\"a\",[]],[\"static-attr\",\"href\",\"\"],[\"flush-element\"],[\"text\",\"Nav item again\"],[\"close-element\"],[\"close-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"li\",[]],[\"flush-element\"],[\"open-element\",\"a\",[]],[\"static-attr\",\"href\",\"\"],[\"flush-element\"],[\"text\",\"One more nav\"],[\"close-element\"],[\"close-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"li\",[]],[\"flush-element\"],[\"open-element\",\"a\",[]],[\"static-attr\",\"href\",\"\"],[\"flush-element\"],[\"text\",\"Another nav item\"],[\"close-element\"],[\"close-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"li\",[]],[\"flush-element\"],[\"open-element\",\"a\",[]],[\"static-attr\",\"href\",\"\"],[\"flush-element\"],[\"text\",\"More navigation\"],[\"close-element\"],[\"close-element\"],[\"text\",\"\\n\"],[\"close-element\"],[\"text\",\"\\n\"],[\"open-element\",\"ul\",[]],[\"static-attr\",\"class\",\"nav nav-sidebar\"],[\"flush-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"li\",[]],[\"flush-element\"],[\"open-element\",\"a\",[]],[\"static-attr\",\"href\",\"\"],[\"flush-element\"],[\"text\",\"Nav item again\"],[\"close-element\"],[\"close-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"li\",[]],[\"flush-element\"],[\"open-element\",\"a\",[]],[\"static-attr\",\"href\",\"\"],[\"flush-element\"],[\"text\",\"One more nav\"],[\"close-element\"],[\"close-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"li\",[]],[\"flush-element\"],[\"open-element\",\"a\",[]],[\"static-attr\",\"href\",\"\"],[\"flush-element\"],[\"text\",\"Another nav item\"],[\"close-element\"],[\"close-element\"],[\"text\",\"\\n\"],[\"close-element\"],[\"text\",\"\\n\"]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[],\"hasPartials\":false}", "meta": { "moduleName": "bookstore/templates/components/side-bar.hbs" } });
+});
 define('bookstore/templates/components/tether-dialog', ['exports', 'ember-modal-dialog/templates/components/tether-dialog'], function (exports, _emberModalDialogTemplatesComponentsTetherDialog) {
   Object.defineProperty(exports, 'default', {
     enumerable: true,
@@ -472,6 +538,9 @@ define('bookstore/templates/components/tether-dialog', ['exports', 'ember-modal-
       return _emberModalDialogTemplatesComponentsTetherDialog['default'];
     }
   });
+});
+define("bookstore/templates/dashboard", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template({ "id": "UulafNmg", "block": "{\"statements\":[[\"open-element\",\"div\",[]],[\"static-attr\",\"class\",\"container-fluid\"],[\"flush-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"div\",[]],[\"static-attr\",\"class\",\"row\"],[\"flush-element\"],[\"text\",\"\\n    \"],[\"open-element\",\"div\",[]],[\"static-attr\",\"class\",\"col-sm-3 col-md-2 sidebar\"],[\"flush-element\"],[\"text\",\"\\n      \"],[\"append\",[\"unknown\",[\"side-bar\"]],false],[\"text\",\"\\n    \"],[\"close-element\"],[\"text\",\"\\n    \"],[\"open-element\",\"div\",[]],[\"static-attr\",\"class\",\"col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main\"],[\"flush-element\"],[\"text\",\"\\n      \"],[\"append\",[\"helper\",[\"dashboard-main\"],null,[[\"articles\"],[[\"get\",[\"model\"]]]]],false],[\"text\",\"\\n    \"],[\"close-element\"],[\"text\",\"\\n  \"],[\"close-element\"],[\"text\",\"\\n\"],[\"close-element\"],[\"text\",\"\\n\"]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[],\"hasPartials\":false}", "meta": { "moduleName": "bookstore/templates/dashboard.hbs" } });
 });
 define("bookstore/templates/publishing-houses", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template({ "id": "pUHHrBPa", "block": "{\"statements\":[[\"append\",[\"unknown\",[\"outlet\"]],false],[\"text\",\"\\n\"]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[],\"hasPartials\":false}", "meta": { "moduleName": "bookstore/templates/publishing-houses.hbs" } });
@@ -512,7 +581,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("bookstore/app")["default"].create({"name":"bookstore","version":"0.0.0+d7528d35"});
+  require("bookstore/app")["default"].create({"name":"bookstore","version":"0.0.0+cdb718f2"});
 }
 
 /* jshint ignore:end */

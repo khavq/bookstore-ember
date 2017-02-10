@@ -5,6 +5,7 @@ export default Ember.Component.extend({
 		open() {
 			this.get('book').reload().then(() => {
 				this.set('isShowingModal', true);
+				console.log("isShowingModal=true");
 				this.get('blurBackground')(true);
 			});
 			

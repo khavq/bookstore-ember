@@ -1,0 +1,38 @@
+<button id="toggle" type="button" class="btn btn-default" {{action 'collapse'}}>
+  <span class="glyphicon glyphicon-book" aria-hidden="true"></span> Instructions
+</button>
+
+<div id="instructions" class="panel-collapse collapse">
+ <div class="well">
+   <h2>Instructions</h2>
+   <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+ </div>
+</div>
+
+<h1 class="page-header">Dashboard</h1>
+
+<h2>Articles</h2>
+<div class="table-responsive">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Header</th>
+        <th>Header</th>
+        <th>Header</th>
+        <th>Header</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each articles as |article|}}
+      <tr>
+        <td>{{ article.[0] }}</td>
+        <td>{{ article.[1] }}</td>
+        <td>{{ article.[2] }}</td>
+        <td>{{ article.[3] }}</td>
+        <td>{{ article.[4] }}</td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</div>
