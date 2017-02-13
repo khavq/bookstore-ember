@@ -6,14 +6,24 @@
 
 /* jshint ignore:end */
 
-define('bookstore/adapters/application', ['exports', 'ember', 'ember-data/adapters/json-api'], function (exports, _ember, _emberDataAdaptersJsonApi) {
+define('bookstore/adapters/application', ['exports', 'ember', 'ember-data/adapters/json-api', 'ember-data', 'ember-simple-auth/mixins/data-adapter-mixin'], function (exports, _ember, _emberDataAdaptersJsonApi, _emberData, _emberSimpleAuthMixinsDataAdapterMixin) {
 	var _Ember$String = _ember['default'].String;
 	var pluralize = _Ember$String.pluralize;
 	var underscore = _Ember$String.underscore;
-	exports['default'] = _emberDataAdaptersJsonApi['default'].extend({
+	exports['default'] = _emberDataAdaptersJsonApi['default'].extend(_emberSimpleAuthMixinsDataAdapterMixin['default'], {
+		authorizer: 'authorizer:application',
+
 		pathForType: function pathForType(type) {
 			return pluralize(underscore(type));
-		}
+		},
+
+		authManager: _ember['default'].inject.service(),
+
+		headers: _ember['default'].computed('authManager.accessToken', function () {
+			return {
+				"Authorization": 'Bearer ' + this.get("authManager.accessToken")
+			};
+		})
 
 	});
 });
@@ -52,6 +62,14 @@ define('bookstore/app', ['exports', 'ember', 'bookstore/resolver', 'ember-load-i
   (0, _emberLoadInitializers['default'])(App, _bookstoreConfigEnvironment['default'].modulePrefix);
 
   exports['default'] = App;
+});
+define("bookstore/authenticators/oauth2", ["exports", "ember-simple-auth/authenticators/oauth2-password-grant"], function (exports, _emberSimpleAuthAuthenticatorsOauth2PasswordGrant) {
+  exports["default"] = _emberSimpleAuthAuthenticatorsOauth2PasswordGrant["default"].extend({
+    serverTokenEndpoint: "http://localhost:3000/oauth/token"
+  });
+});
+define('bookstore/authorizers/application', ['exports', 'ember-simple-auth/authorizers/oauth2-bearer'], function (exports, _emberSimpleAuthAuthorizersOauth2Bearer) {
+  exports['default'] = _emberSimpleAuthAuthorizersOauth2Bearer['default'].extend();
 });
 define('bookstore/components/book-cover', ['exports', 'ember'], function (exports, _ember) {
 	exports['default'] = _ember['default'].Component.extend({
@@ -131,6 +149,26 @@ define('bookstore/components/fa-stack', ['exports', 'ember-font-awesome/componen
     }
   });
 });
+define('bookstore/components/login-page', ['exports', 'ember'], function (exports, _ember) {
+	exports['default'] = _ember['default'].Component.extend({
+		authManager: _ember['default'].inject.service('session'),
+
+		actions: {
+			authenticate: function authenticate() {
+				var _getProperties = this.getProperties('login', 'password');
+
+				var login = _getProperties.login;
+				var password = _getProperties.password;
+
+				this.get('authManager').authenticate('authenticator:oauth2', login, password).then(function () {
+					alert('Success! Click the top link!');
+				}, function (err) {
+					alert('Error obtaining token: ' + err.responseText);
+				});
+			}
+		}
+	});
+});
 define('bookstore/components/modal-dialog-overlay', ['exports', 'ember-modal-dialog/components/modal-dialog-overlay'], function (exports, _emberModalDialogComponentsModalDialogOverlay) {
   Object.defineProperty(exports, 'default', {
     enumerable: true,
@@ -148,6 +186,9 @@ define('bookstore/components/modal-dialog', ['exports', 'ember-modal-dialog/comp
   });
 });
 define('bookstore/components/nav-bar', ['exports', 'ember'], function (exports, _ember) {
+  exports['default'] = _ember['default'].Component.extend({});
+});
+define('bookstore/components/secret-page', ['exports', 'ember'], function (exports, _ember) {
   exports['default'] = _ember['default'].Component.extend({});
 });
 define('bookstore/components/side-bar', ['exports', 'ember'], function (exports, _ember) {
@@ -281,6 +322,20 @@ define('bookstore/initializers/ember-data', ['exports', 'ember-data/setup-contai
     initialize: _emberDataSetupContainer['default']
   };
 });
+define('bookstore/initializers/ember-simple-auth', ['exports', 'bookstore/config/environment', 'ember-simple-auth/configuration', 'ember-simple-auth/initializers/setup-session', 'ember-simple-auth/initializers/setup-session-service'], function (exports, _bookstoreConfigEnvironment, _emberSimpleAuthConfiguration, _emberSimpleAuthInitializersSetupSession, _emberSimpleAuthInitializersSetupSessionService) {
+  exports['default'] = {
+    name: 'ember-simple-auth',
+
+    initialize: function initialize(registry) {
+      var config = _bookstoreConfigEnvironment['default']['ember-simple-auth'] || {};
+      config.baseURL = _bookstoreConfigEnvironment['default'].rootURL || _bookstoreConfigEnvironment['default'].baseURL;
+      _emberSimpleAuthConfiguration['default'].load(config);
+
+      (0, _emberSimpleAuthInitializersSetupSession['default'])(registry);
+      (0, _emberSimpleAuthInitializersSetupSessionService['default'])(registry);
+    }
+  };
+});
 define('bookstore/initializers/export-application-global', ['exports', 'ember', 'bookstore/config/environment'], function (exports, _ember, _bookstoreConfigEnvironment) {
   exports.initialize = initialize;
 
@@ -378,6 +433,15 @@ define("bookstore/instance-initializers/ember-data", ["exports", "ember-data/-pr
     initialize: _emberDataPrivateInstanceInitializersInitializeStoreService["default"]
   };
 });
+define('bookstore/instance-initializers/ember-simple-auth', ['exports', 'ember-simple-auth/instance-initializers/setup-session-restoration'], function (exports, _emberSimpleAuthInstanceInitializersSetupSessionRestoration) {
+  exports['default'] = {
+    name: 'ember-simple-auth',
+
+    initialize: function initialize(instance) {
+      (0, _emberSimpleAuthInstanceInitializersSetupSessionRestoration['default'])(instance);
+    }
+  };
+});
 define('bookstore/models/author', ['exports', 'ember-data', 'bookstore/models/publisher', 'ember-data/relationships'], function (exports, _emberData, _bookstoreModelsPublisher, _emberDataRelationships) {
 	exports['default'] = _bookstoreModelsPublisher['default'].extend({
 		books: _emberData['default'].hasMany('books', { async: true }),
@@ -393,6 +457,11 @@ define('bookstore/models/book', ['exports', 'ember-data'], function (exports, _e
     price: _emberData['default'].attr('number'),
     author: _emberData['default'].belongsTo('author', { inverse: 'books' }),
     publisher: _emberData['default'].belongsTo('publisher', { polymorphic: true, inverse: 'published' })
+  });
+});
+define('bookstore/models/code', ['exports', 'ember-data'], function (exports, _emberData) {
+  exports['default'] = _emberData['default'].Model.extend({
+    description: _emberData['default'].attr('string')
   });
 });
 define('bookstore/models/publisher', ['exports', 'ember-data'], function (exports, _emberData) {
@@ -420,12 +489,17 @@ define('bookstore/router', ['exports', 'ember', 'bookstore/config/environment'],
     this.route('author', { path: '/author/:author_id' });
     this.route('publishing-houses');
     this.route('dashboard');
+
+    this.route('secret', {
+      path: '/secret'
+    });
+    this.route('login');
   });
 
   exports['default'] = Router;
 });
-define('bookstore/routes/application', ['exports', 'ember'], function (exports, _ember) {
-	exports['default'] = _ember['default'].Route.extend({
+define('bookstore/routes/application', ['exports', 'ember', 'ember-simple-auth/mixins/application-route-mixin'], function (exports, _ember, _emberSimpleAuthMixinsApplicationRouteMixin) {
+	exports['default'] = _ember['default'].Route.extend(_emberSimpleAuthMixinsApplicationRouteMixin['default'], {
 		actions: {
 			blurBackground: function blurBackground(blur) {
 				this.controllerFor('application').set('blur', blur);
@@ -461,15 +535,25 @@ define('bookstore/routes/book', ['exports', 'ember'], function (exports, _ember)
 		}
 	});
 });
-define("bookstore/routes/dashboard", ["exports", "ember"], function (exports, _ember) {
-  exports["default"] = _ember["default"].Route.extend({
+define('bookstore/routes/dashboard', ['exports', 'ember', 'ember-simple-auth/mixins/authenticated-route-mixin'], function (exports, _ember, _emberSimpleAuthMixinsAuthenticatedRouteMixin) {
+  exports['default'] = _ember['default'].Route.extend(_emberSimpleAuthMixinsAuthenticatedRouteMixin['default'], {
     model: function model() {
       return [["1,001", "Lorem", "ipsum", "dolor", "sit"], ["1,002", "amet", "consectetur", "adipiscing", "elit"], ["1,003", "Integer", "nec", "odio", "Praesent"], ["1,003", "libero", "Sed", "cursus", "ante"], ["1,004", "dapibus", "diam", "Sed", "nisi"], ["1,005", "Nulla", "quis", "sem", "at"], ["1,006", "nibh", "elementum", "imperdiet", "Duis"], ["1,007", "sagittis", "ipsum", "Praesent", "mauris"], ["1,008", "Fusce", "nec", "tellus", "sed"], ["1,009", "augue", "semper", "porta", "Mauris"], ["1,010", "massa", "Vestibulum", "lacinia", "arcu"], ["1,011", "eget", "nulla", "Class", "aptent"], ["1,012", "taciti", "sociosqu", "ad", "litora"], ["1,013", "torquent", "per", "conubia", "nostra"], ["1,014", "per", "inceptos", "himenaeos", "Curabitur"], ["1,015", "sodales", "ligula", "in", "libero"]];
     }
   });
 });
+define('bookstore/routes/login', ['exports', 'ember'], function (exports, _ember) {
+  exports['default'] = _ember['default'].Route.extend({});
+});
 define('bookstore/routes/publishing-houses', ['exports', 'ember'], function (exports, _ember) {
   exports['default'] = _ember['default'].Route.extend({});
+});
+define('bookstore/routes/secret', ['exports', 'ember'], function (exports, _ember) {
+  exports['default'] = _ember['default'].Route.extend({
+    model: function model() {
+      return this.store.findAll('code');
+    }
+  });
 });
 define('bookstore/serializers/application', ['exports', 'ember-data'], function (exports, _emberData) {
 	exports['default'] = _emberData['default'].JSONAPISerializer.extend({
@@ -485,6 +569,9 @@ define('bookstore/services/ajax', ['exports', 'ember-ajax/services/ajax'], funct
       return _emberAjaxServicesAjax['default'];
     }
   });
+});
+define('bookstore/services/cookies', ['exports', 'ember-cookies/services/cookies'], function (exports, _emberCookiesServicesCookies) {
+  exports['default'] = _emberCookiesServicesCookies['default'];
 });
 define('bookstore/services/modal-dialog', ['exports', 'ember', 'ember-modal-dialog/services/modal-dialog', 'bookstore/config/environment'], function (exports, _ember, _emberModalDialogServicesModalDialog, _bookstoreConfigEnvironment) {
   var computed = _ember['default'].computed;
@@ -502,6 +589,12 @@ define('bookstore/services/modal-dialog', ['exports', 'ember', 'ember-modal-dial
     })
   });
 });
+define('bookstore/services/session', ['exports', 'ember-simple-auth/services/session'], function (exports, _emberSimpleAuthServicesSession) {
+  exports['default'] = _emberSimpleAuthServicesSession['default'];
+});
+define('bookstore/session-stores/application', ['exports', 'ember-simple-auth/session-stores/adaptive'], function (exports, _emberSimpleAuthSessionStoresAdaptive) {
+  exports['default'] = _emberSimpleAuthSessionStoresAdaptive['default'].extend();
+});
 define("bookstore/templates/application", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template({ "id": "iiMQrnWH", "block": "{\"statements\":[[\"open-element\",\"div\",[]],[\"dynamic-attr\",\"class\",[\"concat\",[[\"helper\",[\"if\"],[[\"get\",[\"blur\"]],\"blur-background\",\"\"],null]]]],[\"flush-element\"],[\"text\",\"\\n\\t\"],[\"append\",[\"unknown\",[\"nav-bar\"]],false],[\"text\",\"\\n\\t\"],[\"append\",[\"unknown\",[\"outlet\"]],false],[\"text\",\"\\n\"],[\"close-element\"]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[],\"hasPartials\":false}", "meta": { "moduleName": "bookstore/templates/application.hbs" } });
 });
@@ -517,6 +610,9 @@ define("bookstore/templates/components/book-cover", ["exports"], function (expor
 define("bookstore/templates/components/dashboard-main", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template({ "id": "MggFpuW+", "block": "{\"statements\":[[\"open-element\",\"button\",[]],[\"static-attr\",\"id\",\"toggle\"],[\"static-attr\",\"type\",\"button\"],[\"static-attr\",\"class\",\"btn btn-default\"],[\"modifier\",[\"action\"],[[\"get\",[null]],\"collapse\"]],[\"flush-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"span\",[]],[\"static-attr\",\"class\",\"glyphicon glyphicon-book\"],[\"static-attr\",\"aria-hidden\",\"true\"],[\"flush-element\"],[\"close-element\"],[\"text\",\" Instructions\\n\"],[\"close-element\"],[\"text\",\"\\n\\n\"],[\"open-element\",\"div\",[]],[\"static-attr\",\"id\",\"instructions\"],[\"static-attr\",\"class\",\"panel-collapse collapse\"],[\"flush-element\"],[\"text\",\"\\n \"],[\"open-element\",\"div\",[]],[\"static-attr\",\"class\",\"well\"],[\"flush-element\"],[\"text\",\"\\n   \"],[\"open-element\",\"h2\",[]],[\"flush-element\"],[\"text\",\"Instructions\"],[\"close-element\"],[\"text\",\"\\n   \"],[\"open-element\",\"p\",[]],[\"flush-element\"],[\"text\",\"Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\"],[\"close-element\"],[\"text\",\"\\n \"],[\"close-element\"],[\"text\",\"\\n\"],[\"close-element\"],[\"text\",\"\\n\\n\"],[\"open-element\",\"h1\",[]],[\"static-attr\",\"class\",\"page-header\"],[\"flush-element\"],[\"text\",\"Dashboard\"],[\"close-element\"],[\"text\",\"\\n\\n\"],[\"open-element\",\"h2\",[]],[\"flush-element\"],[\"text\",\"Articles\"],[\"close-element\"],[\"text\",\"\\n\"],[\"open-element\",\"div\",[]],[\"static-attr\",\"class\",\"table-responsive\"],[\"flush-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"table\",[]],[\"static-attr\",\"class\",\"table table-striped\"],[\"flush-element\"],[\"text\",\"\\n    \"],[\"open-element\",\"thead\",[]],[\"flush-element\"],[\"text\",\"\\n      \"],[\"open-element\",\"tr\",[]],[\"flush-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"th\",[]],[\"flush-element\"],[\"text\",\"#\"],[\"close-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"th\",[]],[\"flush-element\"],[\"text\",\"Header\"],[\"close-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"th\",[]],[\"flush-element\"],[\"text\",\"Header\"],[\"close-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"th\",[]],[\"flush-element\"],[\"text\",\"Header\"],[\"close-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"th\",[]],[\"flush-element\"],[\"text\",\"Header\"],[\"close-element\"],[\"text\",\"\\n      \"],[\"close-element\"],[\"text\",\"\\n    \"],[\"close-element\"],[\"text\",\"\\n    \"],[\"open-element\",\"tbody\",[]],[\"flush-element\"],[\"text\",\"\\n\"],[\"block\",[\"each\"],[[\"get\",[\"articles\"]]],null,0],[\"text\",\"    \"],[\"close-element\"],[\"text\",\"\\n  \"],[\"close-element\"],[\"text\",\"\\n\"],[\"close-element\"]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[{\"statements\":[[\"text\",\"      \"],[\"open-element\",\"tr\",[]],[\"flush-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"td\",[]],[\"flush-element\"],[\"append\",[\"unknown\",[\"article\",\"0\"]],false],[\"close-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"td\",[]],[\"flush-element\"],[\"append\",[\"unknown\",[\"article\",\"1\"]],false],[\"close-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"td\",[]],[\"flush-element\"],[\"append\",[\"unknown\",[\"article\",\"2\"]],false],[\"close-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"td\",[]],[\"flush-element\"],[\"append\",[\"unknown\",[\"article\",\"3\"]],false],[\"close-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"td\",[]],[\"flush-element\"],[\"append\",[\"unknown\",[\"article\",\"4\"]],false],[\"close-element\"],[\"text\",\"\\n      \"],[\"close-element\"],[\"text\",\"\\n\"]],\"locals\":[\"article\"]}],\"hasPartials\":false}", "meta": { "moduleName": "bookstore/templates/components/dashboard-main.hbs" } });
 });
+define("bookstore/templates/components/login-page", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template({ "id": "IqLdSMOV", "block": "{\"statements\":[[\"block\",[\"link-to\"],[\"secret\"],null,0],[\"text\",\"\\n\\n\"],[\"open-element\",\"h2\",[]],[\"flush-element\"],[\"text\",\"Login page\"],[\"close-element\"],[\"text\",\"\\n\"],[\"open-element\",\"p\",[]],[\"flush-element\"],[\"text\",\"Use login / ok\"],[\"close-element\"],[\"text\",\"\\n\\n\"],[\"open-element\",\"form\",[]],[\"modifier\",[\"action\"],[[\"get\",[null]],\"authenticate\"],[[\"on\"],[\"submit\"]]],[\"flush-element\"],[\"text\",\"\\n  \"],[\"append\",[\"helper\",[\"input\"],null,[[\"value\",\"placeholder\"],[[\"get\",[\"login\"]],\"Login\"]]],false],[\"open-element\",\"br\",[]],[\"flush-element\"],[\"close-element\"],[\"text\",\"\\n  \"],[\"append\",[\"helper\",[\"input\"],null,[[\"value\",\"placeholder\",\"type\"],[[\"get\",[\"password\"]],\"Password\",\"password\"]]],false],[\"open-element\",\"br\",[]],[\"flush-element\"],[\"close-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"button\",[]],[\"static-attr\",\"type\",\"submit\"],[\"flush-element\"],[\"text\",\"Login\"],[\"close-element\"],[\"text\",\"\\n\"],[\"close-element\"]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[{\"statements\":[[\"text\",\"Secret codez here\"]],\"locals\":[]}],\"hasPartials\":false}", "meta": { "moduleName": "bookstore/templates/components/login-page.hbs" } });
+});
 define('bookstore/templates/components/modal-dialog', ['exports', 'ember-modal-dialog/templates/components/modal-dialog'], function (exports, _emberModalDialogTemplatesComponentsModalDialog) {
   Object.defineProperty(exports, 'default', {
     enumerable: true,
@@ -527,6 +623,9 @@ define('bookstore/templates/components/modal-dialog', ['exports', 'ember-modal-d
 });
 define("bookstore/templates/components/nav-bar", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template({ "id": "tUqsWuyg", "block": "{\"statements\":[[\"open-element\",\"nav\",[]],[\"static-attr\",\"class\",\"navbar navbar-inverse navbar-fixed-top\"],[\"flush-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"div\",[]],[\"static-attr\",\"class\",\"container-fluid\"],[\"flush-element\"],[\"text\",\"\\n    \"],[\"open-element\",\"div\",[]],[\"static-attr\",\"class\",\"navbar-header\"],[\"flush-element\"],[\"text\",\"\\n      \"],[\"open-element\",\"button\",[]],[\"static-attr\",\"type\",\"button\"],[\"static-attr\",\"class\",\"navbar-toggle collapsed\"],[\"static-attr\",\"data-toggle\",\"collapse\"],[\"static-attr\",\"data-target\",\"#navbar\"],[\"static-attr\",\"aria-expanded\",\"false\"],[\"static-attr\",\"aria-controls\",\"navbar\"],[\"flush-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"span\",[]],[\"static-attr\",\"class\",\"sr-only\"],[\"flush-element\"],[\"text\",\"Toggle navigation\"],[\"close-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"span\",[]],[\"static-attr\",\"class\",\"icon-bar\"],[\"flush-element\"],[\"close-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"span\",[]],[\"static-attr\",\"class\",\"icon-bar\"],[\"flush-element\"],[\"close-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"span\",[]],[\"static-attr\",\"class\",\"icon-bar\"],[\"flush-element\"],[\"close-element\"],[\"text\",\"\\n      \"],[\"close-element\"],[\"text\",\"\\n      \"],[\"block\",[\"link-to\"],[\"book\"],[[\"class\"],[\"navbar-brand\"]],1],[\"text\",\"\\n    \"],[\"close-element\"],[\"text\",\"\\n    \"],[\"open-element\",\"div\",[]],[\"static-attr\",\"id\",\"navbar\"],[\"static-attr\",\"class\",\"navbar-collapse collapse\"],[\"flush-element\"],[\"text\",\"\\n      \"],[\"open-element\",\"ul\",[]],[\"static-attr\",\"class\",\"nav navbar-nav navbar-right\"],[\"flush-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"li\",[]],[\"flush-element\"],[\"text\",\"\\n          \"],[\"block\",[\"link-to\"],[\"dashboard\"],[[\"class\"],[\"nav-item nav-link\"]],0],[\"text\",\"\\n        \"],[\"close-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"li\",[]],[\"flush-element\"],[\"text\",\"\\n          \"],[\"open-element\",\"a\",[]],[\"static-attr\",\"href\",\"#\"],[\"static-attr\",\"class\",\"nav-item nav-link\"],[\"flush-element\"],[\"text\",\"Settings\"],[\"close-element\"],[\"text\",\"\\n        \"],[\"close-element\"],[\"text\",\"\\n      \"],[\"close-element\"],[\"text\",\"\\n      \"],[\"open-element\",\"form\",[]],[\"static-attr\",\"class\",\"navbar-form navbar-right\"],[\"flush-element\"],[\"text\",\"\\n        \"],[\"open-element\",\"input\",[]],[\"static-attr\",\"type\",\"text\"],[\"static-attr\",\"class\",\"form-control\"],[\"static-attr\",\"placeholder\",\"Search...\"],[\"flush-element\"],[\"close-element\"],[\"text\",\"\\n      \"],[\"close-element\"],[\"text\",\"\\n    \"],[\"close-element\"],[\"text\",\"\\n  \"],[\"close-element\"],[\"text\",\"\\n\"],[\"close-element\"]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[{\"statements\":[[\"text\",\"Dashboard\"]],\"locals\":[]},{\"statements\":[[\"text\",\"Awesomeproject\"]],\"locals\":[]}],\"hasPartials\":false}", "meta": { "moduleName": "bookstore/templates/components/nav-bar.hbs" } });
+});
+define("bookstore/templates/components/secret-page", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template({ "id": "FG54mwO9", "block": "{\"statements\":[[\"open-element\",\"h1\",[]],[\"flush-element\"],[\"text\",\"OMG DA CODEZ!!\"],[\"close-element\"],[\"text\",\"\\n\\n\"],[\"open-element\",\"ul\",[]],[\"flush-element\"],[\"text\",\"\\n\"],[\"block\",[\"each\"],[[\"get\",[\"model\"]]],null,0],[\"close-element\"]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[{\"statements\":[[\"text\",\"  \"],[\"open-element\",\"li\",[]],[\"flush-element\"],[\"open-element\",\"strong\",[]],[\"flush-element\"],[\"append\",[\"unknown\",[\"code\",\"description\"]],false],[\"close-element\"],[\"close-element\"],[\"text\",\"\\n\"]],\"locals\":[\"code\"]}],\"hasPartials\":false}", "meta": { "moduleName": "bookstore/templates/components/secret-page.hbs" } });
 });
 define("bookstore/templates/components/side-bar", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template({ "id": "G5J1D2mb", "block": "{\"statements\":[[\"open-element\",\"ul\",[]],[\"static-attr\",\"class\",\"nav nav-sidebar\"],[\"flush-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"li\",[]],[\"static-attr\",\"class\",\"active\"],[\"flush-element\"],[\"open-element\",\"a\",[]],[\"static-attr\",\"href\",\"#\"],[\"flush-element\"],[\"text\",\"Overview \"],[\"open-element\",\"span\",[]],[\"static-attr\",\"class\",\"sr-only\"],[\"flush-element\"],[\"text\",\"(current)\"],[\"close-element\"],[\"close-element\"],[\"close-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"li\",[]],[\"flush-element\"],[\"open-element\",\"a\",[]],[\"static-attr\",\"href\",\"#\"],[\"flush-element\"],[\"text\",\"Reports\"],[\"close-element\"],[\"close-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"li\",[]],[\"flush-element\"],[\"open-element\",\"a\",[]],[\"static-attr\",\"href\",\"#\"],[\"flush-element\"],[\"text\",\"Analytics\"],[\"close-element\"],[\"close-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"li\",[]],[\"flush-element\"],[\"open-element\",\"a\",[]],[\"static-attr\",\"href\",\"#\"],[\"flush-element\"],[\"text\",\"Export\"],[\"close-element\"],[\"close-element\"],[\"text\",\"\\n\"],[\"close-element\"],[\"text\",\"\\n\"],[\"open-element\",\"ul\",[]],[\"static-attr\",\"class\",\"nav nav-sidebar\"],[\"flush-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"li\",[]],[\"flush-element\"],[\"open-element\",\"a\",[]],[\"static-attr\",\"href\",\"\"],[\"flush-element\"],[\"text\",\"Nav item\"],[\"close-element\"],[\"close-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"li\",[]],[\"flush-element\"],[\"open-element\",\"a\",[]],[\"static-attr\",\"href\",\"\"],[\"flush-element\"],[\"text\",\"Nav item again\"],[\"close-element\"],[\"close-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"li\",[]],[\"flush-element\"],[\"open-element\",\"a\",[]],[\"static-attr\",\"href\",\"\"],[\"flush-element\"],[\"text\",\"One more nav\"],[\"close-element\"],[\"close-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"li\",[]],[\"flush-element\"],[\"open-element\",\"a\",[]],[\"static-attr\",\"href\",\"\"],[\"flush-element\"],[\"text\",\"Another nav item\"],[\"close-element\"],[\"close-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"li\",[]],[\"flush-element\"],[\"open-element\",\"a\",[]],[\"static-attr\",\"href\",\"\"],[\"flush-element\"],[\"text\",\"More navigation\"],[\"close-element\"],[\"close-element\"],[\"text\",\"\\n\"],[\"close-element\"],[\"text\",\"\\n\"],[\"open-element\",\"ul\",[]],[\"static-attr\",\"class\",\"nav nav-sidebar\"],[\"flush-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"li\",[]],[\"flush-element\"],[\"open-element\",\"a\",[]],[\"static-attr\",\"href\",\"\"],[\"flush-element\"],[\"text\",\"Nav item again\"],[\"close-element\"],[\"close-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"li\",[]],[\"flush-element\"],[\"open-element\",\"a\",[]],[\"static-attr\",\"href\",\"\"],[\"flush-element\"],[\"text\",\"One more nav\"],[\"close-element\"],[\"close-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"li\",[]],[\"flush-element\"],[\"open-element\",\"a\",[]],[\"static-attr\",\"href\",\"\"],[\"flush-element\"],[\"text\",\"Another nav item\"],[\"close-element\"],[\"close-element\"],[\"text\",\"\\n\"],[\"close-element\"],[\"text\",\"\\n\"]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[],\"hasPartials\":false}", "meta": { "moduleName": "bookstore/templates/components/side-bar.hbs" } });
@@ -542,8 +641,14 @@ define('bookstore/templates/components/tether-dialog', ['exports', 'ember-modal-
 define("bookstore/templates/dashboard", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template({ "id": "UulafNmg", "block": "{\"statements\":[[\"open-element\",\"div\",[]],[\"static-attr\",\"class\",\"container-fluid\"],[\"flush-element\"],[\"text\",\"\\n  \"],[\"open-element\",\"div\",[]],[\"static-attr\",\"class\",\"row\"],[\"flush-element\"],[\"text\",\"\\n    \"],[\"open-element\",\"div\",[]],[\"static-attr\",\"class\",\"col-sm-3 col-md-2 sidebar\"],[\"flush-element\"],[\"text\",\"\\n      \"],[\"append\",[\"unknown\",[\"side-bar\"]],false],[\"text\",\"\\n    \"],[\"close-element\"],[\"text\",\"\\n    \"],[\"open-element\",\"div\",[]],[\"static-attr\",\"class\",\"col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main\"],[\"flush-element\"],[\"text\",\"\\n      \"],[\"append\",[\"helper\",[\"dashboard-main\"],null,[[\"articles\"],[[\"get\",[\"model\"]]]]],false],[\"text\",\"\\n    \"],[\"close-element\"],[\"text\",\"\\n  \"],[\"close-element\"],[\"text\",\"\\n\"],[\"close-element\"],[\"text\",\"\\n\"]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[],\"hasPartials\":false}", "meta": { "moduleName": "bookstore/templates/dashboard.hbs" } });
 });
+define("bookstore/templates/login", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template({ "id": "6L9gjTMA", "block": "{\"statements\":[[\"append\",[\"unknown\",[\"login-page\"]],false],[\"text\",\"\\n\"]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[],\"hasPartials\":false}", "meta": { "moduleName": "bookstore/templates/login.hbs" } });
+});
 define("bookstore/templates/publishing-houses", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template({ "id": "pUHHrBPa", "block": "{\"statements\":[[\"append\",[\"unknown\",[\"outlet\"]],false],[\"text\",\"\\n\"]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[],\"hasPartials\":false}", "meta": { "moduleName": "bookstore/templates/publishing-houses.hbs" } });
+});
+define("bookstore/templates/secret", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template({ "id": "PTRlEcsc", "block": "{\"statements\":[[\"append\",[\"helper\",[\"secret-page\"],null,[[\"model\"],[[\"get\",[\"model\"]]]]],false],[\"text\",\"\\n\"]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[],\"hasPartials\":false}", "meta": { "moduleName": "bookstore/templates/secret.hbs" } });
 });
 /* jshint ignore:start */
 
@@ -581,7 +686,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("bookstore/app")["default"].create({"name":"bookstore","version":"0.0.0+cdb718f2"});
+  require("bookstore/app")["default"].create({"name":"bookstore","version":"0.0.0+c8947e66"});
 }
 
 /* jshint ignore:end */
