@@ -11,10 +11,6 @@ Router.map(function() {
   this.route('author', { path: '/author/:author_id'});
   this.route('publishing-houses');
   this.route('dashboard');
-
-  this.route('secret', {
-    path: '/secret'
-  });
   this.route('login');
 });
 

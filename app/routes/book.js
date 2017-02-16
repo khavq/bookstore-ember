@@ -1,15 +1,18 @@
 import Ember from 'ember';
+import AuthenticatedRouteMixin from 'ember-simple-auth/mixins/authenticated-route-mixin';
+import InfinityRoute from "ember-infinity/mixins/route";
 
-export default Ember.Route.extend({
+export default Ember.Route.extend(InfinityRoute, AuthenticatedRouteMixin, {
 	queryParams: {
 		limit: {
 			refreshModel: true
 		}
 	},
 
-	model(params) {
-		console.log(params);
-		return this.store.query('book', params);
+	model() {
+		// console.log(params);
+		// return this.store.query('book', params);
+		return this.infinityModel("book");
 	},
 
 	actions: {

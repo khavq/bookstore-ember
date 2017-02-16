@@ -5,5 +5,7 @@
   {{#each model as |book|}}
     {{book-cover book=book blurBackground=(route-action "blurBackground")}}
   {{/each}}
+  
+  {{infinity-loader infinityModel=model}}
 </ul>
 
