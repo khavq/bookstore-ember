@@ -13,6 +13,20 @@ export default Ember.Controller.extend({
 	// showAll: computed('total', 'model', function() {
 	// 	return this.get('total') > this.get('model.length');
 	// })
+	handleFilterEntry: computed(function(){
+
+	}),
+
+	actions: {
+	    filterByCity(param) {
+	      if (param !== '') {
+	        return this.get('store').query('rental', { city: param });
+	      } else {
+	        return this.get('store').findAll('rental');
+	      }
+	    }
+	  }
+
 });
 
 

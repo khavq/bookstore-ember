@@ -15,14 +15,21 @@ export default Ember.Route.extend(InfinityRoute, AuthenticatedRouteMixin, {
 	model(params) {
 		// console.log(params);
 		// return this.store.query('book', params);
-		return this.infinityModel("book", { perPage: 12, startingPage: 1 });
+		//var search = this.get('txt_search');
+		return this.infinityModel("book", { perPage: 12, startingPage: 1, search: "" });
 		// return this.findPaged('book', params);
-	}
+	},
 
-	// actions: {
-	// 	showAll() {
-	// 		const total = this.controllerFor('books').get('total');
-	// 		this.transitionTo({ queryParams: {limit: total}});
-	// 	}
-	// }
+	actions: {
+		showAll() {
+			// const total = this.controllerFor('books').get('total');
+			// this.transitionTo({ queryParams: {limit: total}});
+		},
+
+		handleFilterEntry() {
+	      // let filterInputValue = this.get('value');
+	      // let filterAction = this.get('filter');
+	      // filterAction(filterInputValue).then((filterResults) => this.set('results', filterResults));
+	    }
+	}
 });
