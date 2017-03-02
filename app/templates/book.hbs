@@ -1,10 +1,9 @@
 {{#if showAll}}
   <button {{action 'showAll'}}>Show All</button>
 {{/if}}
-{{#list-filter
-   filter=(action 'filterByCity')
-   as |rentals|}}
-{{/list-filter}}
+{{!input value=value key-up=(action 'filteredArticles') class="light" placeholder="Filter By City"}}
+{{input value=value class="light" placeholder="Search..."}}
+<button {{action 'filteredArticles'}}>Show All</button>
 <ul>
   {{#each model as |book|}}
     {{book-cover book=book blurBackground=(route-action "blurBackground")}}
