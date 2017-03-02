@@ -1,5 +1,5 @@
 import Ember from 'ember';
-// const { computed } = Ember;
+const { computed } = Ember;
 
 export default Ember.Controller.extend({
 	queryParams: ['search'],
