@@ -17,6 +17,14 @@
         <li>
           <a href="#" class="nav-item nav-link">Settings</a>
         </li>
+        <li>
+          {{#if session.isAuthenticated}}
+            <a {{action 'invalidateSession'}}>Logout {{currentMember.member.name}}</a>
+
+          {{else}}
+            {{#link-to 'login'}}Login{{/link-to}}
+          {{/if}}
+        </li>
       </ul>
       <input class="navbar-form navbar-right" type="text" id="txt_search" class="form-control" placeholder="Search...">
     </div>
