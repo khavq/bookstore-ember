@@ -19,7 +19,7 @@
         </li>
         <li>
           {{#if session.isAuthenticated}}
-            <a {{action 'invalidateSession'}}>Logout {{currentMember.member.name}}</a>
+            <a {{action 'invalidateSession'}}>Logout {{currentMember.member.email}}</a>
 
           {{else}}
             {{#link-to 'login'}}Login{{/link-to}}

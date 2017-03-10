@@ -12,6 +12,7 @@ Router.map(function() {
   this.route('publishing-houses');
   this.route('dashboard');
   this.route('login');
+  this.route('register');
 });
 
 export default Router;
