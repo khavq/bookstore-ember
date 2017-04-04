@@ -5,6 +5,6 @@
 
     Setting `disableAnalytics` to true will prevent any data from being sent.
   */
-  "disableAnalytics": false
+  "disableAnalytics": false,
   "proxy": "http://ec2-52-42-253-200.us-west-2.compute.amazonaws.com/api/v1/"
 }
