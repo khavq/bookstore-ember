@@ -4,7 +4,7 @@ import InfinityRoute from "ember-infinity/mixins/route";
 // import RouteMixin from 'ember-cli-pagination/remote/route-mixin';
 
 
-export default Ember.Route.extend(InfinityRoute, AuthenticatedRouteMixin, {
+export default Ember.Route.extend(InfinityRoute,  {
 	queryParams: {
 		limit: {
 			refreshModel: true
