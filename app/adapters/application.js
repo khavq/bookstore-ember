@@ -10,7 +10,7 @@ export default JSONAPIAdapter.extend(DataAdapterMixin, {
 	// namespace: 'api',
 	authorizer: 'authorizer:application',
 	
-	host: ENV.host
+	host: ENV.host,
 
 	pathForType(type) {
 		return pluralize(underscore(type));
