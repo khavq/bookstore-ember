@@ -2,7 +2,7 @@ import Ember from 'ember';
 import JSONAPIAdapter from 'ember-data/adapters/json-api';
 import DS from 'ember-data';
 import DataAdapterMixin from 'ember-simple-auth/mixins/data-adapter-mixin';
-import ENV from 'bookstore/config/emvironment';
+import ENV from '../../config/emvironment';
 
 const { String: { pluralize, underscore } } = Ember;
 
