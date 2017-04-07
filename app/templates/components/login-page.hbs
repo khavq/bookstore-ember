@@ -4,4 +4,7 @@
   {{input value=password placeholder='Password' type='password'}}<br>
   <button type="submit">Login</button>
   {{link-to "Register" 'register'}}
+
 </form>
+<button {{action 'authenticateSession'}}>Login with GOOGLE</button>
+<button {{action 'facebookLogin'}}>Login with Facebook</button>

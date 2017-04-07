@@ -23,7 +23,8 @@ module.exports = function(environment) {
 
     },
 
-    host: ''
+    host: '',
+    oauth_url: ''
   };
 
   if (environment === 'development') {
@@ -33,7 +34,8 @@ module.exports = function(environment) {
     // ENV.APP.LOG_TRANSITIONS_INTERNAL = true;
     // ENV.APP.LOG_VIEW_LOOKUPS = true;
     // ENV.APP.HTTP_PROXY = 'http://ec2-52-42-253-200.us-west-2.compute.amazonaws.com/api/v1';
-    ENV.host = 'http://ec2-52-42-253-200.us-west-2.compute.amazonaws.com/api/v1';
+    ENV.host = 'http://localhost:3000/api/v1';
+    ENV.oauth_url = 'http://localhost:3000';
   }
 
   if (environment === 'test') {
@@ -50,7 +52,22 @@ module.exports = function(environment) {
   if (environment === 'production') {
     // ENV.APP.HTTP_PROXY = 'http://ec2-52-42-253-200.us-west-2.compute.amazonaws.com/api/v1';
     ENV.host = 'http://ec2-52-42-253-200.us-west-2.compute.amazonaws.com/api/v1';
+    ENV.oauth_url = 'http://ec2-52-42-253-200.us-west-2.compute.amazonaws.com';
   }
+
+  ENV.torii = {
+    providers: {
+      'google-oauth2': {
+        apiKey: "599414694595-aon8h33baausc2il1u9ogi8h3se8ldbb.apps.googleusercontent.com",
+        redirectUri: "http://localhost:4200/oauth2callback"
+      },
+      'facebook-oauth2': {
+        apiKey: '1850449095224387',
+        redirectUri: 'http://localhost:4200/oauth2callback'
+      }
+    },
+
+  };
 
   return ENV;
 };
