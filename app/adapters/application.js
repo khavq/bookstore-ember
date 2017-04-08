@@ -7,23 +7,27 @@ import ENV from '../config/environment';
 const { String: { pluralize, underscore } } = Ember;
 
 export default JSONAPIAdapter.extend(DataAdapterMixin, {
-	// namespace: 'api',
-	authorizer: 'authorizer:application',
-	
-	host: ENV.host,
-	// host: 'http://ec2-52-42-253-200.us-west-2.compute.amazonaws.com/api/v1',
+    // namespace: 'api',
+    authorizer: 'authorizer:application',
+    headers: Ember.computed(function() {
+        var token = Ember.$('meta[name="csrf-token"]').attr('content');
 
-	pathForType(type) {
-		return pluralize(underscore(type));
-	},
+        return { "X-CSRF-Token": token };
+    }),
+    host: ENV.host,
+    // host: 'http://ec2-52-42-253-200.us-west-2.compute.amazonaws.com/api/v1',
 
-	// authManager: Ember.inject.service(),
+    pathForType(type) {
+        return pluralize(underscore(type));
+    },
 
-	// headers: Ember.computed('authManager.accessToken', function() {
-	//   return {
-	//     "Authorization": `Bearer ${this.get("authManager.accessToken")}`
-	//   };
-	// })
+    // authManager: Ember.inject.service(),
+
+    // headers: Ember.computed('authManager.accessToken', function() {
+    //   return {
+    //     "Authorization": `Bearer ${this.get("authManager.accessToken")}`
+    //   };
+    // })
 
 
 
