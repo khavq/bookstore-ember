@@ -13,6 +13,10 @@ export default Ember.Service.extend({
     } else {
       return Ember.RSVP.resolve();
     }
+  },
+
+  set_current_member(member) {
+    this.set('member', member);
   }
   // load() {
   //   let userId = this.get('session.data.authenticated.user_id');

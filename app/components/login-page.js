@@ -7,33 +7,50 @@ export default Ember.Component.extend({
     ajax: Ember.inject.service(),
     store: Ember.inject.service(),
     cookies: Ember.inject.service(),
-
+    currentMember: Ember.inject.service(),
     actions: {
-    	githubLogin() {
-    		let cookieService = this.get('cookies');
-    		return this.get('torii').open('github').then(data => {
-		      cookieService.write('authenticationToken', data.accessToken)
-		      return this.get('ajax').request(`https://api.github.com/user?access_token=${cookieService.read('authenticationToken')}`)
-		    }).then(user => {
-		      return Ember.$.ajax({
-		        method: "POST",
-		        url: `${ENV.host}/members/github`,
-		        data: {
-		          login: user.login,
-		          email: user.email,
-		          name: user.name,
-		          authentication_token: cookieService.read('authenticationToken'),
-		          avatar_url: user.avatar_url,
-		          github_id: user.id
-		        }
-		      })
-		    }).then( user =>{
-		      cookieService.write('userId', user.user_id)
-		      this.initializeFromCookie()
-		    });
-    	},
-    	facebookLogin: function() {
-            this.get('authManager').authenticate('authenticator:torii', 'facebook-oauth2').then(function () {
+        githubLogin() {
+
+            this.get('authManager').authenticate('authenticator:torii', 'github-oauth2').then(function() {
+                alert("logged in");
+            });;
+            return;
+
+            // this.get('authManager').githubLogin().then(function() {
+            //     alert("logged in");
+            // });
+            // let cookieService = this.get('cookies');
+            // // return this.get('torii').open('github')
+            
+            // return this.get('authManager').authenticate('authenticator:torii', 'github-oauth2').then(data => {
+            //     cookieService.write('authenticationToken', data.accessToken)
+            //     return this.get('ajax').request(`https://api.github.com/user?access_token=${cookieService.read('authenticationToken')}`)
+            // }).then(user => {
+            //     return Ember.$.ajax({
+            //         method: "POST",
+            //         url: `${ENV.host}/members`,
+            //         data: {
+                        
+            //             "utf8": "✓",
+            //             "api_v1_member":{
+            //                 "user_name":`${user.login}`,
+            //                 "email":`${user.email}`,
+            //                 "avatar_url": `${user.avatar_url}`,
+            //                 "full_name": `${user.name}`,
+            //                 "authentication_token": `cookieService.read('authenticationToken')`,
+            //                 "provider_id": `${user.id}`
+            //             }
+                        
+            //         }
+            //     })
+            // }).then(user => {
+            //     return this.get('currentMember').set_current_member(user)
+            //     // cookieService.write('userId', user.user_id)
+            //     // this.initializeFromCookie()
+            // });
+        },
+        facebookLogin: function() {
+            this.get('authManager').authenticate('authenticator:torii', 'facebook-oauth2').then(function() {
                 alert("logged in");
             });;
             return;
