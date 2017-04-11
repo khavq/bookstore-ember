@@ -10,11 +10,33 @@ export default Ember.Component.extend({
     currentMember: Ember.inject.service(),
     actions: {
         githubLogin() {
-
-            this.get('authManager').authenticate('authenticator:torii', 'github-oauth2').then(function() {
-                alert("logged in");
-            });;
-            return;
+        	let cookieService = this.get('cookies');
+            this.get('authManager').authenticate('authenticator:torii', 'github-oauth2').then(data => {
+                cookieService.write('authenticationToken', data.accessToken)
+                return this.get('ajax').request(`https://api.github.com/user?access_token=${cookieService.read('authenticationToken')}`)
+            }).then(user => {
+                return Ember.$.ajax({
+                    method: "POST",
+                    url: `${ENV.host}/members`,
+                    data: {
+                        
+                        "utf8": "✓",
+                        "api_v1_member":{
+                            "user_name":`${user.login}`,
+                            "email":`${user.email}`,
+                            "avatar_url": `${user.avatar_url}`,
+                            "full_name": `${user.name}`,
+                            "authentication_token": `cookieService.read('authenticationToken')`,
+                            "provider_id": `${user.id}`
+                        }
+                        
+                    }
+                })
+            }).then(user => {
+                return this.get('currentMember').set_current_member(user)
+                // cookieService.write('userId', user.user_id)
+                // this.initializeFromCookie()
+            });
 
             // this.get('authManager').githubLogin().then(function() {
             //     alert("logged in");
@@ -56,7 +78,34 @@ export default Ember.Component.extend({
             return;
         },
         authenticateSession() {
-            this.get('authManager').authenticate('authenticator:torii', 'google-oauth2');
+            // this.get('authManager').authenticate('authenticator:torii', 'google-oauth2');
+            let cookieService = this.get('cookies');
+            this.get('authManager').authenticate('authenticator:torii', 'google-oauth2').then(data => {
+                cookieService.write('authenticationToken', data.accessToken)
+                return this.get('ajax').request(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${cookieService.read('authenticationToken')}`)
+            }).then(user => {
+                return Ember.$.ajax({
+                    method: "POST",
+                    url: `${ENV.host}/members`,
+                    data: {
+                        
+                        "utf8": "✓",
+                        "api_v1_member":{
+                            "user_name":`${user.login}`,
+                            "email":`${user.email}`,
+                            "avatar_url": `${user.avatar_url}`,
+                            "full_name": `${user.name}`,
+                            "authentication_token": `cookieService.read('authenticationToken')`,
+                            "provider_id": `${user.id}`
+                        }
+                        
+                    }
+                })
+            }).then(user => {
+                return this.get('currentMember').set_current_member(user)
+                // cookieService.write('userId', user.user_id)
+                // this.initializeFromCookie()
+            });
         },
         invalidateSession() {
             this.get('authManager').invalidate();

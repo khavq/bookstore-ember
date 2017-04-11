@@ -67,6 +67,8 @@ module.exports = function(environment) {
       },
       'github-oauth2': {
         apiKey: "cb663cec8eb622a949fb",
+        redirectUri: 'http://localhost:4200'
+        // redirectUri: 'http://localhost:3000/api/v1/github_oauth?code='
       }
     },
 
