@@ -13,6 +13,7 @@ Router.map(function() {
   this.route('dashboard');
   this.route('login');
   this.route('register');
+  this.route('oauth2callback');
 });
 
 export default Router;
