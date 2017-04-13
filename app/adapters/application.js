@@ -18,14 +18,5 @@ export default JSONAPIAdapter.extend(DataAdapterMixin, {
         return pluralize(underscore(type));
     },
 
-    // authManager: Ember.inject.service(),
-
-    // headers: Ember.computed('authManager.accessToken', function() {
-    //   return {
-    //     "Authorization": `Bearer ${this.get("authManager.accessToken")}`
-    //   };
-    // })
-
-
-
+    
 });
