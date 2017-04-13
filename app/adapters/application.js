@@ -8,12 +8,9 @@ const { String: { pluralize, underscore } } = Ember;
 
 export default JSONAPIAdapter.extend(DataAdapterMixin, {
     // namespace: 'api',
-    authorizer: 'authorizer:application',
-    headers: Ember.computed(function() {
-        var token = Ember.$('meta[name="csrf-token"]').attr('content');
-
-        return { "X-CSRF-Token": token };
-    }),
+    // authorizer: 'authorizer:application',
+    authorizer: 'authorizer:oauth2',
+    
     host: ENV.host,
     // host: 'http://ec2-52-42-253-200.us-west-2.compute.amazonaws.com/api/v1',
 

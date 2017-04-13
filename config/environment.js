@@ -55,7 +55,12 @@ module.exports = function(environment) {
     ENV.oauth_url = 'http://ec2-52-42-253-200.us-west-2.compute.amazonaws.com';
   }
 
+  ENV['ember-simple-auth'] = {
+    routeAfterAuthentication: '/'
+  }
+
   ENV.torii = {
+    sessionServiceName: 'session',
     providers: {
       'google-oauth2': {
         apiKey: "599414694595-aon8h33baausc2il1u9ogi8h3se8ldbb.apps.googleusercontent.com",

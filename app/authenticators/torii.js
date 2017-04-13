@@ -9,52 +9,33 @@ export default Torii.extend({
     ajax: service(),
     store: service(),
     cookies: service(),
-
-    github(serverUrl) {
-        this.get('ajax').request(serverUrl)
-            .then((data) => {
-                // toriiData.accessToken = data.token;
-                return data.token;
-            });
+    authManager: service('session'),
+    restore(data) {
+        console.log("[DB] authenticators torii RESTORE ");
     },
 
     authenticate(options) {
         console.log("options=>", options);
 
         return this._super(options).then((toriiData) => {
-            console.log("toriiData", toriiData);
             const authCode = toriiData.authorizationCode;
             let serverUrl = '';
-            if ( 'github-oauth2' === toriiData.provider ) {
-                serverUrl = `${ENV.host}/github_auth?code=${authCode}`;
-            } else if ( 'google-oauth2' == toriiData.provider ) {
-                serverUrl = `${ENV.host}/google_auth?code=${authCode}`;
-            } else if ( 'facebook-oauth2' == toriiData.provider) {
-                serverUrl = `${ENV.host}/facebook_auth?code=${authCode}`;
-            }
+            let provider = toriiData.provider
+            serverUrl = `${ENV.host}/github_auth?code=${authCode}&provider=${provider}`;
 
             return this.get('ajax').request(serverUrl)
             .then((data) => {
-                toriiData.accessToken = data.token;
+                toriiData.urs = data.member.user_name
+                toriiData.email = data.member.email
+                toriiData.access_key = data.member.authentication_token
+                // login
+                this.get('authManager')._login(toriiData.email, toriiData.access_key)
                 return toriiData;
             });
         });
-        // const that = this
-        // return this._super(options).then(function(toriiData) {
-        //     console.log("options=>", options);
-        //     console.log("data:", toriiData);
+    },
 
-        //     const authCode = toriiData.authorizationCode;
-        //     const serverUrl = `${ENV.host}/github_auth?code=${authCode}`;
-
-        //     that.get('ajax').request(serverUrl)
-        //         .then((data) => {
-        //             toriiData.accessToken = data.token;
-        //             return toriiData;
-        //             // return that.get('ajax').request(`https://api.github.com/user?access_token=${data.token}`)
-        //         });
-
-        //     // alert(`authorizationCode:\n${data.authorizationCode}\nprovider: ${data.provider}\nredirectUri: ${data.redirectUri}`);
-        // });
+    invalidate(data) {
+        console.log("[DB] authenticators torii INVALIDATE ");
     }
 });

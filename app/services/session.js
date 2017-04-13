@@ -9,42 +9,20 @@ export default ESASession.extend({
     store: Ember.inject.service(),
     cookies: Ember.inject.service(),
     currentMember: Ember.inject.service(),
-    githubLogin() {
-            let cookieService = this.get('cookies');
-            // return this.get('torii').open('github')
-            
-            return this.get('torii').open('github').then(data => {
-                cookieService.write('authenticationToken', data.accessToken)
-                return this.get('ajax').request(`https://api.github.com/user?access_token=${cookieService.read('authenticationToken')}`)
-            }).then(user => {
-                return Ember.$.ajax({
-                    method: "POST",
-                    url: `${ENV.host}/members`,
-                    data: {
-                        
-                        "utf8": "✓",
-                        "api_v1_member":{
-                            "user_name":`${user.login}`,
-                            "email":`${user.email}`,
-                            "avatar_url": `${user.avatar_url}`,
-                            "full_name": `${user.name}`,
-                            "authentication_token": `cookieService.read('authenticationToken')`,
-                            "provider_id": `${user.id}`
-                        }
-                        
-                    }
-                })
-            }).then(user => {
-                return this.get('currentMember').set_current_member(user)
-                // cookieService.write('userId', user.user_id)
-                // this.initializeFromCookie()
-            });
-        },
 
+    _login(login, password) {
+        this.get('authManager').authenticate('authenticator:oauth2', login, password).catch((reason) => {
+            // alert('Obtaining token is: ' + reason.access_token);
+            if (reason.access_token !== undefined) {
+                alert('Obtaining token is: ' + reason.access_token);
+            } else {
+                alert('Error obtaining token: ' + reason.error);
+            }
+
+            this.set('errorMessage', reason.error || reason);
+        });
+    },
     actions: {
-
-
-
         register(userName, password) {
             return new Promise((resolve, reject) => {
                 Ember.$.ajax({

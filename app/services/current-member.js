@@ -16,16 +16,7 @@ export default Ember.Service.extend({
   },
 
   set_current_member(member) {
+    console.log("set_current_member MEMBER => ", member);
     this.set('member', member);
   }
-  // load() {
-  //   let userId = this.get('session.data.authenticated.user_id');
-  //   if (!isEmpty(userId)) {
-  //     return this.get('store').findRecord('member', userId).then((user) => {
-  //       this.set('member', user);
-  //     });
-  //   } else {
-  //     return Ember.RSVP.resolve();
-  //   }
-  // }
 });
