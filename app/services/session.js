@@ -23,28 +23,28 @@ export default ESASession.extend({
         });
     },
     _sign_up(email, password) {
-        return new Promise((resolve, reject) => {
-            Ember.$.ajax({
-                method: "POST",
-                url: '/members',
-                data: {
+        return Ember.$.ajax({
+            method: "POST",
+            url: `${ENV.host}/members`,
+            data: {
+                member: {
+                    'utf8':'✓',
                     email: email,
                     password: password
                 }
-            }).then((data) => {
-                
-                resolve()
-            }, (reason) => {
-                reject(`Server error: ${Ember.get(reason, 'responseJSON.error')}`)
-            })
+
+            }
+        }).then(data => {
+            return data;
         })
+
     },
     actions: {
         register(userName, password) {
             return new Promise((resolve, reject) => {
                 Ember.$.ajax({
                     method: "POST",
-                    url: '/members',
+                    url: `${ENV.host}/members`,
                     data: {
                         email: userName,
                         password: password
