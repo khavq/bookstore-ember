@@ -22,6 +22,23 @@ export default ESASession.extend({
             this.set('errorMessage', reason.error || reason);
         });
     },
+    _sign_up(email, password) {
+        return new Promise((resolve, reject) => {
+            Ember.$.ajax({
+                method: "POST",
+                url: '/members',
+                data: {
+                    email: email,
+                    password: password
+                }
+            }).then((data) => {
+                
+                resolve()
+            }, (reason) => {
+                reject(`Server error: ${Ember.get(reason, 'responseJSON.error')}`)
+            })
+        })
+    },
     actions: {
         register(userName, password) {
             return new Promise((resolve, reject) => {

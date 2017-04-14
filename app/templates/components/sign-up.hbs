@@ -1,14 +1,24 @@
 <form {{action "submit" on="submit"}}>
-  <label for="name">Name </label> 
-  {{input value=user.name placeholder="enter name"}}
-  <label for="email">Email</label>
-  {{input value=user.email placeholder="enter email"}}
-  <label for="password">Password</label>
-  {{input value=user.password type="password" placeholder="enter password"}}
-  <label for="passwordConfirmation">Password Confirmation</label>
-  {{input value=user.passwordConfirmation type="password" placeholder="enter password again"}}
-  <button type="submit">Login</button>
+  <div class="field">
+    <label for="name">Name </label> 
+    {{input value=member.name placeholder="enter name"}}
+  </div>
+  <div class="field">
+    <label for="email">Email</label>
+    {{input value=member.email placeholder="enter email"}}
+  </div>
+  <div class="field">
+    <label for="password">Password</label>
+    {{input value=member.password type="password" placeholder="enter password"}}
+  </div>
+  <div class="field">
+    <label for="passwordConfirmation">Password Confirmation</label>
+    {{input value=member.passwordConfirmation type="password" placeholder="enter password again"}}
+  </div>
+  <div class="btn btn-primary" {{action 'submit'}}>Sign Up</div>  
+  <!-- <button type="submit">Login</button> -->
 </form>
 {{#if errorMessage}}
   {{errorMessage}}
 {{/if}}
+
