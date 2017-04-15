@@ -1,1 +1,12 @@
-{{sign-up member=model triggerSave=(action "save") errorMessage=errorMessage}}
+<!-- {{sign-up member=model triggerSave=(action "save") errorMessage=errorMessage}} -->
+<div class="field">
+  <label>Email</label>
+  {{input value=email}}
+  {{display-errors errors=errors.email showErrors=showErrors}}
+</div>
+<div class="field">
+  <label>Password</label>
+  {{input value=password type="password"}}
+  {{display-errors errors=errors.password showErrors=showErrors}}
+</div>
+<div class="btn btn-primary" {{action 'signup'}}>Register</div>
