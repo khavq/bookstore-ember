@@ -1,32 +1,17 @@
-<nav class="navbar navbar-inverse navbar-fixed-top">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      {{link-to "Bookstore" 'book' class='navbar-brand'}}
-    </div>
-    <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav navbar-right">
-        <li>
-          {{link-to "Dashboard" 'dashboard' class='nav-item nav-link'}}
-        </li>
-        <li>
-          <a href="#" class="nav-item nav-link">Settings</a>
-        </li>
-        <li>
-          {{#if session.isAuthenticated}}
-            <a {{action 'invalidateSession'}}>Logout {{currentMember.member.email}}</a>
+{{#paper-toolbar}}
+  <div class="md-toolbar-tools">
+    {{#paper-button action=(transition-to '/')}}{{paper-icon 'home'}}Home{{/paper-button}}
+    {{#paper-button action=(transition-to 'dashboard')}}Get Started{{/paper-button}}
+    {{#paper-button action=(transition-to 'dashboard')}}My Courses{{/paper-button}}
 
-          {{else}}
-            {{#link-to 'login'}}Login{{/link-to}}
-          {{/if}}
-        </li>
-      </ul>
-      <input class="navbar-form navbar-right" type="text" id="txt_search" class="form-control" placeholder="Search...">
+    <div class="paper-right">
+      {{paper-icon 'person'}}
+      {{#if session.isAuthenticated}}
+        {{#paper-button action='invalidateSession'}}Logout{{/paper-button}}
+      {{else}}
+        {{#paper-button action=(transition-to 'login')}}Login{{/paper-button}}
+        {{#paper-button action=(transition-to 'register')}}Register{{/paper-button}}
+      {{/if}}
     </div>
   </div>
-</nav>
+{{/paper-toolbar}}

@@ -22,6 +22,7 @@ export default Ember.Controller.extend(EmberValidations, {
                 return this.get("session")._sign_up(email, password)
             }).then(() => {
                 this.get('flashMessages').success('You have signed up successfully')
+                this.get("session")._login(email, password)
                 this.transitionToPreviousRoute()
             }).catch((reason) => {
                 this.set("showErrors", true)

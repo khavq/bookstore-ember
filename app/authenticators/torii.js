@@ -18,6 +18,7 @@ export default Torii.extend({
         console.log("options=>", options);
 
         return this._super(options).then((toriiData) => {
+            console.log("toriiData:", toriiData);
             const authCode = toriiData.authorizationCode;
             let serverUrl = '';
             let provider = toriiData.provider

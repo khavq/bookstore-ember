@@ -1,10 +1,49 @@
-<li class="book" {{action "open"}}>
+<!-- <li class="book" {{action "open"}}>
   <strong>{{book.title}}</strong><br><br>
   <em>by</em>
   {{link-to book.author.name 'author' book.author.id class="author" }}
-</li>
+</li> -->
+{{#paper-card as |card|}}
+        {{#card.title as |title|}}
+          {{#title.text as |text|}}
+            {{#text.headline}}{{book.title}}{{/text.headline}}
+            {{#text.subhead}}Large{{/text.subhead}}
+          {{/title.text}}
+          {{title.media size="lg" src="tomster-9918e85a7f1a28c78b484c34cbe88579.png" alt="Tomster" title="Tomster"}}
+        {{/card.title}}
+        {{#card.actions}}
+          {{#paper-button onClick=(action "open")}}Detail{{/paper-button}}
+          {{#paper-button}}Action 2{{/paper-button}}
+        {{/card.actions}}
+      {{/paper-card}}
+
+
 
 {{#if isShowingModal}}
+  {{#paper-dialog fullscreen=fullscreen onClose=(action "close" "cancel") origin=dialogOrigin}}
+
+    {{#paper-dialog-content}}
+      <h2 class="md-title">What would you name your dog?</h2>
+      <p>Bowser is a common name.</p>
+      {{paper-input placeholder="dog name" autofocus=true value=dogName onChange=(action (mut dogName))}}
+      <div>
+        {{#paper-checkbox value=fullscreen onChange=(action (mut fullscreen))}}Display fullscreen at small window size breakpoints{{/paper-checkbox}}
+      </div>
+    {{/paper-dialog-content}}
+
+    {{#paper-dialog-actions class="layout-row"}}
+      <span class="flex"></span>
+      {{#paper-button primary=true onClick=(action "close" "cancel")}}I'm a cat person{{/paper-button}}
+      {{#paper-button primary=true onClick=(action "close" "ok" dogName)}}Okay!{{/paper-button}}
+    {{/paper-dialog-actions}}
+
+  {{/paper-dialog}}
+{{/if}}
+
+
+
+
+<!-- {{#if isShowingModal}}
 	{{#modal-dialog close="close" clickOutsideToClose=true}}
 		<div class="modal1">
 			<h3>Pucharse is confirm</h3>
@@ -14,4 +53,4 @@
 			<p><em>Thank you! We will email you your ebook</em></p>
 		</div>
 	{{/modal-dialog}}
-{{/if}}
+{{/if}} -->

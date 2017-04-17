@@ -2,14 +2,25 @@
   <button {{action 'showAll'}}>Show All</button>
 {{/if}}
 {{!input value=value key-up=(action 'filteredArticles') class="light" placeholder="Filter By City"}}
-{{input value=value class="light" placeholder="Search..."}}
-<button {{action 'filteredArticles'}}>Show All</button>
-<ul>
+{{!input value=value class="light" placeholder="Search..."}}
+<!-- <button {{action 'filteredArticles'}}>Show All</button> -->
+<!-- <ul>
   {{#each model as |book|}}
     {{book-cover book=book blurBackground=(route-action "blurBackground")}}
   {{/each}}
 
   {{infinity-loader infinityModel=model}}
   {{!page-numbers content=content}}
-</ul>
+</ul> -->
+<div id="paper-dialog-demo">
+<div class="layout-row layout-xs-column" >
+    <div class="layout-column flex-xs flex-gt-xs-50">
+    	
+    	{{#each model as |book|}}
+	    	{{book-cover book=book blurBackground=(route-action "blurBackground")}}
+	  	{{/each}}
+	  {{infinity-loader infinityModel=model}}
 
+    </div>
+</div>
+</div>

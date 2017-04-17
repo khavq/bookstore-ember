@@ -68,7 +68,7 @@ module.exports = function(environment) {
       },
       'facebook-oauth2': {
         apiKey: '1850449095224387',
-        redirectUri: 'http://localhost:4200/oauth2callback'
+        redirectUri: 'http://localhost:4200/'
       },
       'github-oauth2': {
         apiKey: "cb663cec8eb622a949fb",
