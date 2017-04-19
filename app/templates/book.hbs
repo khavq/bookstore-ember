@@ -12,15 +12,19 @@
   {{infinity-loader infinityModel=model}}
   {{!page-numbers content=content}}
 </ul> -->
-<div id="paper-dialog-demo">
-<div class="layout-row layout-xs-column" >
-    <div class="layout-column flex-xs flex-gt-xs-50">
-    	
+<!-- <div id="paper-dialog-demo"> -->
+<div class="layout-row layout-column-md layout-wrap " >
+    <!-- <div class="layout-column flex-xs flex-gt-xs-50"> -->
+   	
     	{{#each model as |book|}}
-	    	{{book-cover book=book blurBackground=(route-action "blurBackground")}}
+      <!-- <div class="layout-row layout-xs-column">  -->
+        <div class="flex-30 flex-gt-xs-20">
+          {{book-cover book=book blurBackground=(route-action "blurBackground")}}  
+        </div>
+	    <!-- </div>	 -->
 	  	{{/each}}
 	  {{infinity-loader infinityModel=model}}
 
-    </div>
+    <!-- </div> -->
 </div>
-</div>
+<!-- </div> -->
