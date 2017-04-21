@@ -15,6 +15,7 @@ Router.map(function() {
   this.route('register');
   this.route('oauth2callback');
   this.route('signup');
+  this.route('checkout');
 });
 
 export default Router;

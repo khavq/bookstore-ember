@@ -1,7 +1,13 @@
 import Ember from 'ember';
 
 export default Ember.Component.extend({
+	cart: Ember.inject.service(),
+
 	actions: {
+		add_to_cart(id){
+			console.log("id:",id);
+			this.get('cart').add(id);
+		},
 		open() {
 			this.get('book').reload().then(() => {
 				this.set('isShowingModal', true);

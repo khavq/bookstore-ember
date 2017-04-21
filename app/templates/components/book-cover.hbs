@@ -13,7 +13,7 @@
         {{/card.title}}
         {{#card.actions}}
           {{#paper-button onClick=(action "open") iconButton=true}}{{paper-icon icon="description"}}{{/paper-button}}
-          {{#paper-button iconButton=true}}{{paper-icon icon="add shopping cart"}}{{/paper-button}}
+          {{#paper-button iconButton=true onClick=(action "add_to_cart" book.id )}}{{paper-icon icon="add shopping cart"}}{{/paper-button}}
         {{/card.actions}}
       {{/paper-card}}
 

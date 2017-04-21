@@ -1,0 +1,12 @@
+{{#each cart.books as |book|}}
+	<div class="cart-item">
+		<div class="image">
+			<img src="{{book.picture1}}"/>
+		</div>
+		<div class="details">
+			{{book.title}}
+			<br>
+			{{book.author.name}}
+		</div>
+	</div>
+{{/each}}
