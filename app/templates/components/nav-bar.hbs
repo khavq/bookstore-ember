@@ -1,43 +1,20 @@
 {{#paper-toolbar}}
   <div class="md-toolbar-tools">
-    {{#paper-button action=(transition-to '/')}}{{paper-icon icon="home"}}Home{{/paper-button}}
+    {{#link-to 'book'}}{{#paper-button }}Home{{/paper-button}}{{/link-to}}
     {{#paper-button action=(transition-to 'dashboard')}}Dashboard{{/paper-button}}
 
     <div class="paper-right">
-      {{paper-icon 'person'}}
+      
       {{#if session.isAuthenticated}}
-      {{#paper-menu as |menu|}}
-    {{#menu.trigger}}
-      {{#paper-button iconButton=true}}
-        {{paper-icon "local_phone"}}
-      {{/paper-button}}
-    {{/menu.trigger}}
-    {{#menu.content width=4 as |content|}}
-      {{#each items as |item|}}
-        {{#content.menu-item onClick="openSomething"}}
-          {{paper-icon item.icon}}
-          <span>{{item.title}}</span>
-        {{/content.menu-item}}
-      {{/each}}
-
-      {{#content.menu-item onClick="openSomething" disabled=true}}
-        {{paper-icon "adb"}}
-        <span>This is disabled.</span>
-      {{/content.menu-item}}
-
-      {{paper-divider}}
-
-      {{#each items as |item|}}
-        {{#content.menu-item onClick="openSomething"}}
-          {{paper-icon item.icon}} {{item.title}}
-        {{/content.menu-item}}
-      {{/each}}
-    {{/menu.content}}
-  {{/paper-menu}}
-
-        {{#paper-button onClick=(action 'invalidateSession')}}Logout{{/paper-button}}
+        {{#paper-item class=""}}
+            <img src="{{currentMember.member.avatar_url}}" class="md-avatar" alt="{{currentMember.member.full_name}}" />
+            {{#paper-button onClick=(action 'invalidateSession')}}Logout {{currentMember.member.email}}{{/paper-button}}
+            {{#paper-button action=(transition-to '/')}}{{paper-icon icon="shopping cart" size=18}}{{/paper-button}}
+            {{cart.bookIds.length}}
+          {{/paper-item}}
       {{else}}
-        {{#paper-button action=(transition-to 'login')}}Login{{/paper-button}}
+        {{#link-to 'login'}}{{#paper-button }}Login{{/paper-button}}{{/link-to}}
+        
         {{#paper-button action=(transition-to 'register')}}Register{{/paper-button}}
       {{/if}}
     </div>
