@@ -13,7 +13,11 @@
         {{/card.title}}
         {{#card.actions}}
           {{#paper-button onClick=(action "open") iconButton=true}}{{paper-icon icon="description"}}{{/paper-button}}
-          {{#paper-button iconButton=true onClick=(action "add_to_cart" book.id )}}{{paper-icon icon="add shopping cart"}}{{/paper-button}}
+          {{#if (contains book.id cart.bookIds.content) }}
+            {{#paper-button iconButton=true onClick=(action "remove_from_cart" book.id )}}{{paper-icon icon="remove shopping cart"}}{{/paper-button}}
+          {{else}}
+            {{#paper-button iconButton=true onClick=(action "add_to_cart" book.id )}}{{paper-icon icon="add shopping cart"}}{{/paper-button}}
+          {{/if}}  
         {{/card.actions}}
       {{/paper-card}}
 

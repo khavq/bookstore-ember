@@ -1,12 +1,24 @@
-{{#each cart.books as |book|}}
-	<div class="cart-item">
-		<div class="image">
-			<img src="{{book.picture1}}"/>
+{{#paper-subheader}}Your cart({{cart.books.length}}){{/paper-subheader}}
+{{#each cart.books as |item|}}
+	{{#paper-item class="md-3-line" }}
+		<img src={{item.picture1}} alt={{item.title}} class="md-avatar">
+		<div class="md-list-item-text">
+			<h3>{{item.title}}</h3>
+			<h4>{{item.author.name}}</h4>
+			<p>{{item.description}}</p>
 		</div>
-		<div class="details">
-			{{book.title}}
-			<br>
-			{{book.author.name}}
-		</div>
-	</div>
+		{{paper-divider}}
+		{{#paper-button onClick=(action 'remove_from_cart' item.id )}}{{paper-icon icon='remove shopping cart'}}{{/paper-button}}
+	{{/paper-item}}
 {{/each}}
+{{paper-divider}}
+{{paper-divider}}
+{{paper-divider}}
+{{paper-icon icon='monetization on'}} : {{cart.total}}
+
+{{stripe-checkout
+	name="Bookstore Inc"
+	description="Selling great books"
+	amount=cart.centsTotal
+	action="processStripeToken"
+}}

@@ -1,22 +1,27 @@
 {{#paper-toolbar}}
   <div class="md-toolbar-tools">
     {{#link-to 'book'}}{{#paper-button }}Home{{/paper-button}}{{/link-to}}
-    {{#paper-button action=(transition-to 'dashboard')}}Dashboard{{/paper-button}}
+    {{#link-to 'dashboard'}}{{#paper-button }}Dashboard{{/paper-button}}{{/link-to}}
 
     <div class="paper-right">
-      
-      {{#if session.isAuthenticated}}
-        {{#paper-item class=""}}
-            <img src="{{currentMember.member.avatar_url}}" class="md-avatar" alt="{{currentMember.member.full_name}}" />
-            {{#paper-button onClick=(action 'invalidateSession')}}Logout {{currentMember.member.email}}{{/paper-button}}
-            {{#paper-button action=(transition-to '/')}}{{paper-icon icon="shopping cart" size=18}}{{/paper-button}}
-            {{cart.bookIds.length}}
-          {{/paper-item}}
-      {{else}}
-        {{#link-to 'login'}}{{#paper-button }}Login{{/paper-button}}{{/link-to}}
-        
-        {{#paper-button action=(transition-to 'register')}}Register{{/paper-button}}
-      {{/if}}
+      {{#paper-item class=""}}
+        {{#if session.isAuthenticated}}
+          
+              <img src="{{currentMember.member.avatar_url}}" class="md-avatar" alt="{{currentMember.member.full_name}}" />
+              {{#paper-button onClick=(action 'invalidateSession')}}Logout {{currentMember.member.email}}{{/paper-button}}
+              
+            
+        {{else}}
+          {{#link-to 'login'}}{{#paper-button }}Login{{/paper-button}}{{/link-to}}
+          
+          {{#paper-button action=(transition-to 'register')}}Register{{/paper-button}}
+        {{/if}}
+        {{#link-to 'checkout'}}
+          {{#paper-button}}
+            {{paper-icon icon="shopping cart" size=18}}({{cart.bookIds.length}})
+          {{/paper-button}}   
+        {{/link-to}}
+      {{/paper-item}}
     </div>
   </div>
 {{/paper-toolbar}}

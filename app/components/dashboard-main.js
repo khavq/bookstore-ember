@@ -8,11 +8,11 @@ export default Ember.Component.extend({
 	  },
 
 	  didInsertElement() {
-	    this.$('#toggle').tooltip({ title: "Click here to toggle instructions" });
+	    // this.$('#toggle').tooltip({ title: "Click here to toggle instructions" });
 	  },
 
 	  willDestroyElement() {
 	    // remember to clean up your room, kids
-	    this.$('#toggle').tooltip('destroy');
+	    // this.$('#toggle').tooltip('destroy');
 	  }
 });

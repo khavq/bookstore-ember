@@ -36,6 +36,9 @@ module.exports = function(environment) {
     // ENV.APP.HTTP_PROXY = 'http://ec2-52-42-253-200.us-west-2.compute.amazonaws.com/api/v1';
     ENV.host = 'http://localhost:3000/api/v1';
     ENV.oauth_url = 'http://localhost:3000';
+    ENV.stripe = {
+      key: "pk_test_1gvQxTVpoRRczB27Qd3py8In"
+    };
   }
 
   if (environment === 'test') {

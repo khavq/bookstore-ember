@@ -8,6 +8,9 @@ export default Ember.Component.extend({
 			console.log("id:",id);
 			this.get('cart').add(id);
 		},
+		remove_from_cart(id){
+			this.get('cart').remove(id);
+		},
 		open() {
 			this.get('book').reload().then(() => {
 				this.set('isShowingModal', true);
