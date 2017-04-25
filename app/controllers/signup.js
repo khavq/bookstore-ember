@@ -13,16 +13,15 @@ export default Ember.Controller.extend(EmberValidations, {
     //         length: { minimum: 6 }
     //     }
     // },
-    
-
     actions: {
         signup(member) {
             let { email, password } = this.getProperties('email', 'password');
             this.validate().then(() => {
                 return this.get("session")._sign_up(email, password)
             }).then(() => {
-                this.get('flashMessages').success('You have signed up successfully')
-                this.get("session")._login(email, password)
+                this.get("session")._login(email, password).then(()=>{
+                    this.get('flashMessages').success('You have signed up successfully')
+                })
                 this.transitionToPreviousRoute()
             }).catch((reason) => {
                 this.set("showErrors", true)

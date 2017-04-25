@@ -9,15 +9,15 @@ module.exports = function(deployTarget) {
       type: 'git-commit'
     },
     's3-index': {
-      accessKeyId: "AKIAIZPNVY32G3H6V2EQ",
-      secretAccessKey: "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",
+      accessKeyId: "",
+      secretAccessKey: "",
       bucket: "bookstore-ember",
       region: "us-west-1",
       allowOverwrite: true
     },
     's3': {
-      accessKeyId: "AKIAIZPNVY32G3H6V2EQ",
-      secretAccessKey: "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",
+      accessKeyId: "",
+      secretAccessKey: "",
       bucket: "bookstore-ember",
       region: "us-west-1"
     }
