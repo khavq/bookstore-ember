@@ -3,6 +3,7 @@
 {{/if}}
 {{!input value=value key-up=(action 'filteredArticles') class="light" placeholder="Filter By City"}}
 {{!input value=value class="light" placeholder="Search..."}}
+{{page-toolbar pageTitle="Books" isDemo=true}}
 <!-- <button {{action 'filteredArticles'}}>Show All</button> -->
 <!-- <ul>
   {{#each model as |book|}}
@@ -13,12 +14,13 @@
   {{!page-numbers content=content}}
 </ul> -->
 <!-- <div id="paper-dialog-demo"> -->
-<div class="layout-row layout-column-md layout-wrap " >
+{{#doc-content}}
+<div class="layout-md layout-wrap " >
     <!-- <div class="layout-column flex-xs flex-gt-xs-50"> -->
     
       {{#each model as |book|}}
       <!-- <div class="layout-row layout-xs-column">  -->
-        <div class="flex-30 flex-gt-xs-20">
+        <div class="flex flex-gt-lg-30">
           {{book-cover book=book blurBackground=(route-action "blurBackground")}}  
         </div>
       <!-- </div>  -->
@@ -27,4 +29,5 @@
 
     <!-- </div> -->
 </div>
+{{/doc-content}}
 <!-- </div> -->

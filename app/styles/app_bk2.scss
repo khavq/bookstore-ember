@@ -1,14 +1,10 @@
 $primary: 'deep-orange';
-$warn: 'amber';
-$accent: 'pink';
-
 @import 'ember-paper';
-@import 'demo';
 
-/**
- * Needed styles to set correct widths.
- */
- 
+.paper-right {
+  margin-left: auto;
+}
+
 .infinity-loader {
 	display: none;
 }

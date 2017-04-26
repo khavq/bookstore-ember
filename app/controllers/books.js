@@ -4,7 +4,6 @@ const { computed } = Ember;
 export default Ember.Controller.extend({
 	queryParams: ['search'],
   	search: 'anyway',
-
   	filteredArticles: Ember.computed('search', 'model', function() {
 	    var search = this.get('search');
 	    // return category;

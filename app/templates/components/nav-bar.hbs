@@ -8,9 +8,26 @@
         {{#if session.isAuthenticated}}
           
               <img src="{{currentMember.member.avatar_url}}" class="md-avatar" alt="{{currentMember.member.full_name}}" />
+
               {{#paper-button onClick=(action 'invalidateSession')}}Logout {{currentMember.member.email}}{{/paper-button}}
               
-            
+              {{#paper-menu isOpen=menuFourIsOpen position="target-right target" as |menu|}}
+              {{#menu.trigger}}
+                {{#paper-button onClick=null iconButton=true}}
+                  {{paper-icon "local_phone" class="md-menu-origin"}}
+                {{/paper-button}}
+              {{/menu.trigger}}
+
+              {{#menu.content as |content|}}
+                {{#each items as |item|}}
+                  {{#content.menu-item onClick="openSomething"}}
+                    <p style="width: 190px;">{{item.title}}</p>
+                    {{paper-icon item.icon class="md-menu-align-target"}}
+                  {{/content.menu-item}}
+                {{/each}}
+              {{/menu.content}}
+            {{/paper-menu}}
+
         {{else}}
           {{#link-to 'login'}}{{#paper-button }}Login{{/paper-button}}{{/link-to}}
         {{/if}}
@@ -19,6 +36,8 @@
             {{paper-icon icon="shopping cart" size=18}}({{cart.bookIds.length}})
           {{/paper-button}}   
         {{/link-to}}
+        
+
       {{/paper-item}}
     </div>
   </div>
