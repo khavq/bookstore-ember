@@ -5,5 +5,6 @@ export default DS.Model.extend({
   price: DS.attr('number'),
   picture1: DS.attr('string'),
   author: DS.belongsTo('author', { inverse: 'books' }),
-  publisher: DS.belongsTo('publisher', { polymorphic: true, inverse: 'published' })
+  publisher: DS.belongsTo('publisher', { polymorphic: true, inverse: 'published' }),
+  updated_at: DS.attr('string'),
 });
