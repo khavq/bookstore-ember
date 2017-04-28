@@ -15,19 +15,16 @@
 </ul> -->
 <!-- <div id="paper-dialog-demo"> -->
 {{#doc-content}}
-<div class="layout-md layout-wrap " >
-    <!-- <div class="layout-column flex-xs flex-gt-xs-50"> -->
-    
+<div class="layout-gt-md layout-wrap" >    
       {{#each model as |book|}}
-      <!-- <div class="layout-row layout-xs-column">  -->
-        <div class="flex flex-gt-lg-30">
+        <div class="flex">
           {{book-cover book=book blurBackground=(route-action "blurBackground")}}  
         </div>
-      <!-- </div>  -->
       {{/each}}
-    {{infinity-loader infinityModel=model}}
-
-    <!-- </div> -->
+      {{load-more-book-button action='infinityLoad' infinityModel=model}}
 </div>
+
+
+
 {{/doc-content}}
 <!-- </div> -->

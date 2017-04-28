@@ -7,15 +7,15 @@
     {{/paper-sidenav-toggle}}
     
     <h2>
-      {{#if isDemo}}
-        Components {{paper-icon "chevron-right"}}
-      {{else if isLayout}}
-        Layout {{paper-icon "chevron-right"}}
-      {{/if}}
+      Bookstore {{paper-icon "chevron-right"}}
       {{pageTitle}}
-      {{#if isWIP}}
-        {{paper-icon "warning" title="Not updated yet."}}
-      {{/if}}
     </h2>
+    <div class="paper-right">
+    {{#paper-item}}
+          {{#paper-button onClick=(transition-to "checkout")}}
+            {{paper-icon icon="shopping cart" size=18}}({{cart.bookIds.length}})
+          {{/paper-button}}   
+    {{/paper-item}}
+    </div>
   {{/toolbar.tools}}
 {{/paper-toolbar}}

@@ -9,10 +9,10 @@ $accent: 'pink';
  * Needed styles to set correct widths.
  */
  
-.infinity-loader {
+/*.infinity-loader {
 	display: none;
 }
-
+*/
 body {
   max-width: 100%;
   max-height: 100%;
@@ -48,4 +48,8 @@ md-toolbar.md-warn {
 
 .inner-sidenav {
   position: relative;
+}
+
+.paper-right {
+  margin-left: auto;
 }
