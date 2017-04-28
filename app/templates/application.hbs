@@ -20,7 +20,15 @@
         <!-- <img src="ember-logo-white.png"> -->
         <div>Bookstore</div>
       </div>
+      {{#paper-item class="md-3-line"}}
+        <img src="{{currentMember.member.avatar_url}}" alt={{item.name}} class="md-avatar">
+        <div class="md-list-item-text">
+            <h3>{{currentMember.member.name}}</h3>
+            <h4>{{currentMember.member.email}}</h4>
+        </div>
+      {{/paper-item}}
     {{/paper-toolbar}}
+
 
     {{#paper-content}}
 

@@ -2,6 +2,7 @@ import Ember from 'ember';
 
 export default Ember.Controller.extend({
 	cart: Ember.inject.service(),
+	currentMember: Ember.inject.service(),
 	actions: {
 	    filterByCity(param) {
 	      if (param !== '') {

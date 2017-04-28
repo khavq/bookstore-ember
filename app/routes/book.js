@@ -41,17 +41,6 @@ export default Ember.Route.extend(InfinityRoute, {
     },
 
     actions: {
-        // willTransition(transition) {
-        //      if (!confirm('Are you sure you want to abandon progress?')) {
-        //        transition.abort();
-        //      } else {
-        //        // Bubble the `willTransition` action so that
-        //        // parent routes can decide whether or not to abort.
-        //        console.log("xxx");
-        //        return true;
-        //      }
-        //    },
-
         showAll() {
             // const total = this.controllerFor('books').get('total');
             // this.transitionTo({ queryParams: {limit: total}});
