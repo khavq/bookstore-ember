@@ -13,9 +13,52 @@
     <div class="paper-right">
     {{#paper-item}}
           {{#paper-button onClick=(transition-to "checkout")}}
-            {{paper-icon icon="shopping cart" size=18}}({{cart.bookIds.length}})
-          {{/paper-button}}   
+            {{paper-icon icon="shopping cart" size=18}}<span style="color:red;" >({{cart.bookIds.length}})</span>
+          {{/paper-button}} 
+          {{#if session.isAuthenticated }}
+            <img src="{{currentMember.member.avatar_url}}" alt={{currentMember.member.email}} class="md-avatar">
+            {{#paper-menu as |menu|}}
+              {{#menu.trigger}}
+                {{#paper-button iconButton=true}}
+                  {{paper-icon "keyboard arrow down"}}
+                  
+                {{/paper-button}}
+                
+              {{/menu.trigger}}
+              {{#menu.content width=4 as |content|}}
+                
+                {{#content.menu-item onClick=(transition-to 'member')}}
+                  {{paper-icon "account box"}}
+                  <span>Update Profile</span>
+                {{/content.menu-item}}
+                {{#content.menu-item onClick="openSomething" disabled=true}}
+                  {{paper-icon "adb"}}
+                  <span>This is disabled.</span>
+                {{/content.menu-item}}
+                {{#content.menu-item onClick="openSomething" disabled=true}}
+                  {{paper-icon "adb"}}
+                  <span>This is disabled.</span>
+                {{/content.menu-item}}
+                {{#content.menu-item onClick="openSomething" disabled=true}}
+                  {{paper-icon "adb"}}
+                  <span>This is disabled.</span>
+                {{/content.menu-item}}
+
+
+                {{paper-divider}}
+
+                {{#content.menu-item onClick=(action 'invalidateSession')}}
+                  {{paper-icon icon='exit to app'}} <span>Logout</span>
+                {{/content.menu-item}}
+
+              {{/menu.content}}
+            {{/paper-menu}}
+          {{else}}
+            
+            {{#paper-button icon=true onClick=(route-action 'showLoginForm')}}{{paper-icon icon='account circle'}}{{/paper-button}}
+          {{/if}}
     {{/paper-item}}
+    
     </div>
   {{/toolbar.tools}}
 {{/paper-toolbar}}

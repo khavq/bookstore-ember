@@ -10,7 +10,11 @@ export default Ember.Component.extend({
     currentMember: Ember.inject.service(),
 
     _login(login, password) {
-        this.get('authManager').authenticate('authenticator:oauth2', login, password).catch((reason) => {
+        this.get('authManager').authenticate('authenticator:oauth2', login, password).then(() => {
+            console.log("reload");
+            // this.reload();
+            // location.reload();
+        }).catch((reason) => {
             // alert('Obtaining token is: ' + reason.access_token);
             if (reason.access_token !== undefined) {
                 alert('Obtaining token is: ' + reason.access_token);
@@ -45,6 +49,10 @@ export default Ember.Component.extend({
         authenticate() {
             const { login, password } = this.getProperties('login', 'password');
             this._login(login, password);
+        },
+
+        closePromptDialog() {
+
         }
     }
 });

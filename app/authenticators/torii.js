@@ -30,7 +30,7 @@ export default Torii.extend({
                 toriiData.email = data.member.email
                 toriiData.access_key = data.member.authentication_token
                 // login
-                this.get('authManager')._login(toriiData.email, toriiData.access_key)
+                this.get('authManager')._login(toriiData.email, toriiData.access_key).then(()=>{location.reload()})
                 return toriiData;
             });
         });

@@ -20,19 +20,16 @@
         <!-- <img src="ember-logo-white.png"> -->
         <div>Bookstore</div>
       </div>
-      {{#paper-item class="md-3-line"}}
-        <img src="{{currentMember.member.avatar_url}}" alt={{item.name}} class="md-avatar">
-        <div class="md-list-item-text">
-            <h3>{{currentMember.member.name}}</h3>
-            <h4>{{currentMember.member.email}}</h4>
-        </div>
-      {{/paper-item}}
+      
     {{/paper-toolbar}}
 
 
     {{#paper-content}}
 
       {{#paper-list}}
+        {{#menu-item onClick=(transition-to "book")}}Introduction{{/menu-item}}
+        {{#menu-item onClick=(transition-to "book")}}Introduction{{/menu-item}}
+        {{#menu-item onClick=(transition-to "book")}}Introduction{{/menu-item}}
         {{#menu-item onClick=(transition-to "book")}}Introduction{{/menu-item}}
 
         <!-- {{#menu-item onClick=(action "toggleExpandedItem" "demos") expanded=demosExpanded canExpand=true}}Components{{/menu-item}} -->
@@ -83,6 +80,12 @@
   {{/paper-sidenav}}
 
   <div class="flex layout-column" tabindex="-1" role="main">
+  	{{page-toolbar pageTitle="Books" isDemo=true}}
+  	
     {{outlet}}
+    {{#if _showLogin }}
+    	{{login-page _showLogin=_showLogin}}
+    {{/if}}
   </div>
 {{/paper-sidenav-container}}
+

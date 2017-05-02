@@ -9,6 +9,7 @@ export default Ember.Service.extend({
     if (this.get('session.isAuthenticated')) {
       return this.get('store').queryRecord('member', { me: true }).then((user) => {
         this.set('member', user);
+        // location.reload();
       });
     } else {
       return Ember.RSVP.resolve();
