@@ -26,6 +26,17 @@ export default Ember.Component.extend({
         });
     },
 
+    transitionToPreviousRoute() {
+        var previousTransition = this.get('previousTransition');
+        if (previousTransition) {
+            this.set('previousTransition', null);
+            previousTransition.retry();
+        } else {
+            // Default back to homepage
+            this.transitionToRoute('index');
+        }
+    },
+
     actions: {
         githubLogin() {
             this.get('authManager').authenticate('authenticator:torii', 'github-oauth2').then(toriiData => {});
@@ -53,6 +64,32 @@ export default Ember.Component.extend({
 
         closePromptDialog() {
 
+        },
+        register() {
+
+            const { login, password } = this.getProperties('login', 'password');
+            this.get("authManager")._sign_up(login, password).then(()=>{
+                this.get("authManager")._login(login, password).then(()=>{
+                    this.get('flashMessages').success('You have signed up successfully');
+                });
+                this.transitionToPreviousRoute()
+            }).catch((reason) => {
+                this.set("showErrors", true)
+                if (typeof(reason) === 'string') {
+                    this.get('flashMessages').danger(reason, { sticky: true })
+                }
+            })
+        },
+        transitionToPreviousRoute() {
+            var previousTransition = this.get('previousTransition');
+            if (previousTransition) {
+                this.set('previousTransition', null);
+                previousTransition.retry();
+            } else {
+                // Default back to homepage
+                this.transitionToRoute('/');
+            }
         }
+
     }
 });

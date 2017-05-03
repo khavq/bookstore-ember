@@ -16,7 +16,23 @@
             {{paper-icon icon="shopping cart" size=18}}<span style="color:red;" >({{cart.bookIds.length}})</span>
           {{/paper-button}} 
           {{#if session.isAuthenticated }}
-            <img src="{{currentMember.member.avatar_url}}" alt={{currentMember.member.email}} class="md-avatar">
+            <!-- <img src={{currentMember.member.avatar_url}}  class="md-avatar"> -->
+            <!-- {{gravatar-image email=currentMember.member.email
+              title=currentMember.member.full_name
+              alt=currentMember.member.full_name
+              defaultImage='identicon'
+              class='img-circle'
+              secure=false
+              size=30
+              retina=true}} -->
+            {{ember-initials/gravatar
+              image="images/user.jpg"
+              email=currentMember.member.email
+              defaultImage="images/default.jpg"
+              relativeUrl="true"
+              size=30
+            }}  
+
             {{#paper-menu as |menu|}}
               {{#menu.trigger}}
                 {{#paper-button iconButton=true}}

@@ -1,15 +1,3 @@
-<!-- <h2>Login page</h2>
-<form {{action 'authenticate' on='submit'}}>
-  {{input value=login placeholder='Login'}}<br>
-  {{input value=password placeholder='Password' type='password'}}<br>
-  <button type="submit">Login</button>
-  {{link-to "Sign Up" 'signup'}}
-
-</form>
-<button {{action 'googleLogin'}}>Login with GOOGLE</button>
-<button {{action 'facebookLogin'}}>Login with Facebook</button>
-<button {{action 'githubLogin'}}>Login with Github</button> -->
-
 {{#paper-dialog fullscreen=fullscreen onClose=(route-action "hideLoginForm" "cancel") origin=dialogOrigin}}
 	{{#paper-form onSubmit=(action "authenticate") as |form|}}
 	    {{#paper-dialog-content}}
@@ -21,13 +9,16 @@
 			    {{form.input label="Password" value=password onChange=(action (mut password)) type='password' required=true}}
 			  </div>
 	    {{/paper-dialog-content}}
-	    {{#paper-dialog-actions class="layout-row"}}
+	    {{#paper-dialog-actions class="layout-row layout-xs-column layout-align-xs-end-center"}}
 	      <span class="flex"></span>
 	      
 	      {{#paper-button primary=true onClick=(route-action "hideLoginForm" "cancel")}}Close{{/paper-button}}
 	      {{#form.submit-button raised=true primary=true disabled=form.isInvalid}}
-			      Login
+			      SignIn
 		  {{/form.submit-button}}
+		  {{#paper-button raised=true primary=true disabled=form.isInvalid onClick=(action 'register')}}
+			      SignUp
+		  {{/paper-button}}
 	    {{/paper-dialog-actions}}
 
 
@@ -37,8 +28,5 @@
     	<div class=" flex">{{#paper-button icon=true onClick=(action 'googleLogin')}}Login with Google{{/paper-button}}</div>
     	<div class="flex">{{#paper-button icon=true onClick=(action 'facebookLogin')}}Login with Facebook{{/paper-button}}</div>
     	<div class="flex">{{#paper-button icon=true onClick=(action 'githubLogin')}}Login with Github{{/paper-button}}</div>
-	    	
-	    	<!-- {{#paper-button icon=true}}Login with Facebook{{/paper-button}}
-	    	{{#paper-button icon=true}}Login with Github{{/paper-button}} -->
-	    </div>
+	</div>
   {{/paper-dialog}}
