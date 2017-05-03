@@ -54,8 +54,9 @@ module.exports = function(environment) {
 
   if (environment === 'production') {
     // ENV.APP.HTTP_PROXY = 'http://ec2-52-42-253-200.us-west-2.compute.amazonaws.com/api/v1';
-    ENV.host = 'http://ec2-52-42-253-200.us-west-2.compute.amazonaws.com/api/v1';
-    ENV.oauth_url = 'http://ec2-52-42-253-200.us-west-2.compute.amazonaws.com';
+    ENV.oauth_url = 'https://cryptic-everglades-79059.herokuapp.com';
+    ENV.host = ENV.oauth_url + '/api/v1';
+    
     ENV.stripe = {
       key: "pk_test_1gvQxTVpoRRczB27Qd3py8In"
     };
