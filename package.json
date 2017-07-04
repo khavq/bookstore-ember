@@ -1,6 +1,6 @@
 {
   "name": "bookstore",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Small description for bookstore goes here",
   "license": "MIT",
   "author": "",
@@ -67,7 +67,8 @@
     "torii": "0.8.2"
   },
   "engines": {
-    "node": ">= 4"
+    "node": "6.11.0",
+    "npm": "5.0.4"
   },
   "private": true
 }
