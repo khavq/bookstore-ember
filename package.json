@@ -12,7 +12,8 @@
   "scripts": {
     "build": "ember build",
     "start": "ember server",
-    "test": "ember test"
+    "test": "ember test",
+    "postinstall": "bower install && grunt build"
   },
   "devDependencies": {
     "body-parser": "^1.16.0",
