@@ -1,5 +1,5 @@
 {
-  "name": "bookstore-ember-frontend",
+  "name": "bookstore",
   "version": "0.0.0",
   "description": "Small description for bookstore goes here",
   "license": "MIT",
@@ -67,8 +67,7 @@
     "torii": "0.8.2"
   },
   "engines": {
-    "node": ">= 4",
-    "yarn": "0.24.6"
+    "node": ">= 4"
   },
   "private": true
 }
