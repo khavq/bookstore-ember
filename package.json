@@ -13,7 +13,7 @@
     "build": "ember build",
     "start": "ember server",
     "test": "ember test",
-    "postinstall": "bower install && grunt build"
+    "postinstall": "bower install"
   },
   "devDependencies": {
     "body-parser": "^1.16.0",
