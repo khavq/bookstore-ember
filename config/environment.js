@@ -85,7 +85,7 @@ module.exports = function(environment) {
             providers: {
                 'google-oauth2': {
                     apiKey: "285413530328-5eorgq06002pgbqge5ccbomf8r4n7oh6.apps.googleusercontent.com",
-                    redirectUri: "https://bookstore-ember-frontend.herokuapp.com/oauth2callback"
+                    redirectUri: "http://bookstore-ember-frontend.s3-website-ap-southeast-1.amazonaws.com/oauth2callback"
                 },
                 'facebook-oauth2': {
                     apiKey: '1850449095224387',
