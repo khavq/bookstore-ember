@@ -89,7 +89,7 @@ module.exports = function(environment) {
                 },
                 'facebook-oauth2': {
                     apiKey: '1850449095224387',
-                    redirectUri: 'https://bookstore-ember-frontend.herokuapp.com/'
+                    redirectUri: 'http://bookstore-ember-frontend.s3-website-ap-southeast-1.amazonaws.com/'
                 },
                 'github-oauth2': {
                     apiKey: "3799aebf7f0fd0be50b6",
